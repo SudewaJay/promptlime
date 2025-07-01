@@ -1,103 +1,138 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import PromptCard from "@/components/PromptCard";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ModalPrompt from "@/components/ModalPrompt";
+import { useSearch } from "@/context/SearchContext";
+
+type Prompt = {
+  _id?: string;
+  title: string;
+  category: string;
+  prompt: string;
+  image?: string;
+  copyCount?: number;
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { searchTerm } = useSearch();
+  const [activeTab, setActiveTab] = useState<"trending" | "all">("trending");
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [visibleCount, setVisibleCount] = useState(4);
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const isTrending = activeTab === "trending";
+
+  useEffect(() => {
+    async function fetchPrompts() {
+      try {
+        const res = await fetch("/api/prompts");
+        const data = await res.json();
+        const promptArray = Array.isArray(data) ? data : data.prompts;
+        setPrompts(promptArray || []);
+      } catch (err) {
+        console.error("❌ Failed to fetch prompts", err);
+      }
+    }
+    fetchPrompts();
+  }, []);
+
+  const trendingPrompts = [...prompts]
+    .sort((a, b) => (b.copyCount || 0) - (a.copyCount || 0))
+    .slice(0, 2);
+
+  const filteredPrompts = prompts.filter((prompt) => {
+    const query = searchTerm.toLowerCase();
+    return (
+      prompt.title.toLowerCase().includes(query) ||
+      prompt.category.toLowerCase().includes(query)
+    );
+  });
+
+  const allPrompts = searchTerm ? filteredPrompts : prompts;
+  const promptsToShow = isTrending
+    ? trendingPrompts
+    : allPrompts.slice(0, visibleCount);
+
+  return (
+    <div className="relative min-h-screen bg-[#0f0f0f] overflow-hidden text-white">
+      <Header />
+
+      <div className="fixed top-0 left-0 w-full h-[45vh] bg-gradient-to-b from-lime-400/40 to-transparent blur-3xl z-0 pointer-events-none" />
+
+      <main className="relative z-10 max-w-6xl mx-auto px-6 py-28">
+        {/* Header and Toggle */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-10 gap-6">
+          <h1 className="text-3xl font-bold text-left">ChatGPT Prompts</h1>
+
+          <div
+            className="relative w-60 h-12 rounded-full bg-white/10 border border-white/20 flex items-center cursor-pointer"
+            onClick={() => {
+              setActiveTab(isTrending ? "all" : "trending");
+              setVisibleCount(4);
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <motion.div
+              layout
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              className={`absolute top w-[calc(50%-4px)] h-10 bg-lime-400 rounded-full z-0 transition-all duration-300 ${
+                isTrending ? "left-1" : "left-1/2"
+              }`}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <div className="relative z-10 flex justify-between w-full text-sm font-semibold text-white px-2">
+              <div className={`w-1/2 text-center ${isTrending ? "text-black" : "text-white/70"}`}>
+                Trending
+              </div>
+              <div className={`w-1/2 text-center ${isTrending ? "text-white/70" : "text-black"}`}>
+                All
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Prompt Grid */}
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <AnimatePresence mode="popLayout">
+            {promptsToShow.map((prompt, index) => (
+              <motion.div
+                key={prompt._id || index}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <PromptCard
+                  {...prompt}
+                  onClick={() => setSelectedPrompt(prompt)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Load More Button */}
+        {!isTrending && !searchTerm && visibleCount < allPrompts.length && (
+          <div className="text-center mb-20">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + 4)}
+              className="px-6 py-2 rounded-full bg-lime-500 hover:bg-lime-400 text-black font-semibold shadow transition"
+            >
+              Load More
+            </button>
+          </div>
+        )}
+
+        {/* 🔍 Modal for Selected Prompt */}
+        {selectedPrompt && (
+          <ModalPrompt prompt={selectedPrompt} onClose={() => setSelectedPrompt(null)} />
+        )}
+
+        <Footer />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
