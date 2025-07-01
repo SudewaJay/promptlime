@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* ✅ Wrap all providers */}
+        {/* ✅ Session provider wrapper for NextAuth */}
         <SessionWrapper>
           {children}
         </SessionWrapper>

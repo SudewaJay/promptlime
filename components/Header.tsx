@@ -52,16 +52,20 @@ export default function Header() {
           ) : (
             <Search
               size={20}
-              aria-label="Search prompts"
+              aria-label="Open search"
               className="cursor-pointer hover:text-lime-400 transition"
               onClick={() => setShowSearch(true)}
             />
           )}
 
           {/* 🔔 Notifications */}
-          <Bell size={20} aria-label="Notifications" className="hover:text-lime-400 cursor-pointer transition" />
+          <Bell
+            size={20}
+            aria-label="Notifications"
+            className="hover:text-lime-400 cursor-pointer transition"
+          />
 
-          {/* 👤 Auth Buttons */}
+          {/* 👤 Auth Section */}
           {!session ? (
             <button
               onClick={() => signIn("google")}
@@ -71,6 +75,18 @@ export default function Header() {
             </button>
           ) : (
             <div className="flex items-center gap-3">
+              {/* ✅ Avatar or Fallback */}
+              {session.user?.image ? (
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name || "User"}
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+              ) : (
+                <User size={20} className="text-white/70" />
+              )}
               <span className="text-white text-sm truncate max-w-[120px]">
                 {session.user?.name}
               </span>
@@ -83,7 +99,7 @@ export default function Header() {
             </div>
           )}
 
-          {/* 📝 Submit Link */}
+          {/* 📝 Submit Prompt Link */}
           <Link
             href="/submit"
             className="ml-2 text-sm text-white/80 hover:text-lime-400 transition font-medium"

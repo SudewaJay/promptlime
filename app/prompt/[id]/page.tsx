@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptActions from "@/components/PromptActions";
 import { formatDistanceToNow } from "date-fns";
+import AnimatedCTA from "@/components/AnimatedCTA";
 
 type Params = {
   params: { id: string };
@@ -85,6 +86,8 @@ export default async function PromptPage({ params }: Params) {
           </div>
         </div>
       </main>
+      
+      <AnimatedCTA />
 
       <Footer />
     </div>
