@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptActions from "@/components/PromptActions";
-import { formatDistanceToNow } from "date-fns";
 import AnimatedCTA from "@/components/AnimatedCTA";
+import { formatDistanceToNow } from "date-fns";
 
 type Params = {
   params: { id: string };
@@ -13,6 +13,7 @@ type Params = {
 
 export default async function PromptPage({ params }: Params) {
   await connectToDatabase();
+
   type PromptType = {
     _id: string;
     title: string;
@@ -23,7 +24,6 @@ export default async function PromptPage({ params }: Params) {
     copyCount?: number;
     views?: number;
     createdAt?: string | Date;
-    // add other fields as needed
   };
 
   const prompt = await Prompt.findByIdAndUpdate(
@@ -45,7 +45,7 @@ export default async function PromptPage({ params }: Params) {
 
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-32">
         <div className="flex flex-col md:flex-row gap-8 items-start">
-          {/* 🖼️ Image on Left */}
+          {/* 🖼️ Image */}
           {prompt.image && (
             <img
               src={prompt.image}
@@ -72,7 +72,7 @@ export default async function PromptPage({ params }: Params) {
             />
 
             {/* 📊 Stats */}
-            <div className="text-sm text-white/60 flex flex-wrap gap-4">
+            <div className="text-sm text-white/60 flex flex-wrap gap-4 mt-4">
               <span>📋 {prompt.copyCount ?? 0} copies</span>
               <span>👁️ {prompt.views ?? 0} views</span>
               {prompt.createdAt && (
@@ -86,7 +86,8 @@ export default async function PromptPage({ params }: Params) {
           </div>
         </div>
       </main>
-      
+
+      {/* 🚀 CTA Section */}
       <AnimatedCTA />
 
       <Footer />

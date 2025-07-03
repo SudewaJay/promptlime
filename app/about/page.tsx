@@ -1,20 +1,45 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AboutHero from "@/components/AboutHero";
+import { WobbleCard } from "@/components/ui/wobble-card";
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
 
-      {/* Background animation gradient */}
+      {/* 🌟 Hero Section */}
+      <div className="bg-black text-white">
+        <AboutHero />
+      </div>
+
+      {/* 💫 Wobble Cards Section */}
+      <section className="relative z-10 max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-6">
+        <WobbleCard>
+          <h3 className="text-2xl font-semibold max-w-4xl mb-2 text-white">Why We Exist</h3>
+          <p className="text-white/80">
+            We blend technology, creativity, and empathy to help brands connect with real people. Every click matters.
+          </p>
+        </WobbleCard>
+
+        <WobbleCard>
+          <h3 className="text-2xl font-semibold mb-2 text-white">What Makes Us Different</h3>
+          <p className="text-white/80">
+            Our team is built on passion and precision. We don’t just design — we solve problems with style.
+          </p>
+        </WobbleCard>
+      </section>
+
+      {/* 🌈 Background Glow */}
       <div className="fixed top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-lime-400/30 to-transparent blur-3xl pointer-events-none z-0" />
 
       <main className="relative z-10 max-w-6xl mx-auto px-6 py-32 space-y-28">
-        {/* Section 1: Hero */}
+        {/* Section 1: Our Story */}
         <motion.section
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -27,7 +52,7 @@ export default function AboutPage() {
           </p>
         </motion.section>
 
-        {/* Section 2: Timeline / Journey */}
+        {/* Section 2: Journey */}
         <motion.section
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -1,6 +1,6 @@
 "use client";
 import { LuArrowUpRight } from "react-icons/lu";
-import { FaFacebookF, FaTiktok, FaYoutube, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import { FaFacebookF, FaTiktok, FaYoutube, FaInstagram, FaLinkedinIn, FaPinterest } from "react-icons/fa";
 import Link from "next/link";
 
 export default function Footer() {
@@ -34,16 +34,16 @@ export default function Footer() {
 
         {/* Right: Social Icons */}
         <div className="flex items-center gap-6 text-white/70">
-          <a href="#" className="hover:text-lime-400 transition">
+          <a href="https://www.facebook.com/share/19pDrf2car/?mibextid=wwXIfr" className="hover:text-lime-400 transition">
             <FaFacebookF size={22} />
           </a>
-          <a href="#" className="hover:text-lime-400 transition">
-            <FaTiktok size={20} />
+          <a href="https://www.pinterest.com/promptlime/" className="hover:text-lime-400 transition">
+            <FaPinterest size={20} />
           </a>
-          <a href="#" className="hover:text-lime-400 transition">
+          <a href="https://www.linkedin.com/company/promptlime-ai/" className="hover:text-lime-400 transition">
             <FaLinkedinIn size={22} />
           </a>
-          <a href="#" className="hover:text-lime-400 transition">
+          <a href="https://www.instagram.com/promptlime.ai" className="hover:text-lime-400 transition">
             <FaInstagram size={22} />
           </a>
         </div>

@@ -2,6 +2,7 @@
 import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 // GET: Fetch all prompts
 export async function GET() {

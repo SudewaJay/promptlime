@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ModalPrompt from "@/components/ModalPrompt";
 import { useSearch } from "@/context/SearchContext";
+import { SparklesCore } from "@/components/ui/sparkles";
 
 type Prompt = {
   _id?: string;
@@ -21,7 +22,7 @@ export default function Home() {
   const { searchTerm } = useSearch();
   const [activeTab, setActiveTab] = useState<"trending" | "all">("trending");
   const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [visibleCount, setVisibleCount] = useState(14);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
   const isTrending = activeTab === "trending";
@@ -42,7 +43,7 @@ export default function Home() {
 
   const trendingPrompts = [...prompts]
     .sort((a, b) => (b.copyCount || 0) - (a.copyCount || 0))
-    .slice(0, 2);
+    .slice(0, 8);
 
   const filteredPrompts = prompts.filter((prompt) => {
     const query = searchTerm.toLowerCase();
@@ -58,42 +59,66 @@ export default function Home() {
     : allPrompts.slice(0, visibleCount);
 
   return (
-    <div className="relative min-h-screen bg-[#0f0f0f] overflow-hidden text-white">
+    <div className="relative min-h-screen bg-gradient-to-b from-[#0f0f0f]/80 via-[#0f0f0f]/60 to-[#0f0f0f]/0 text-white overflow-hidden">
+      {/* ✨ Sparkles Background */}
+      <div className="absolute inset-0 -z-10">
+        <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#ffffff"
+        />
+      </div>
+
       <Header />
 
+      {/* 🌈 Lime glow overlay */}
       <div className="fixed top-0 left-0 w-full h-[45vh] bg-gradient-to-b from-lime-400/40 to-transparent blur-3xl z-0 pointer-events-none" />
 
-      <main className="relative z-10 max-w-6xl mx-auto px-6 py-28">
-        {/* Header and Toggle */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-10 gap-6">
-          <h1 className="text-3xl font-bold text-left">ChatGPT Prompts</h1>
+      <main className="relative z-10 max-w-6xl mx-auto px-6 py-10">
+        {/* Sticky Toggle Header */}
+        <div className="sticky top-20 z-20 bg-transparent pt-4 pb-6 mb-10">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+            <h1 className="text-3xl font-bold text-left">ChatGPT Prompts</h1>
 
-          <div
-            className="relative w-60 h-12 rounded-full bg-white/10 border border-white/20 flex items-center cursor-pointer"
-            onClick={() => {
-              setActiveTab(isTrending ? "all" : "trending");
-              setVisibleCount(4);
-            }}
-          >
-            <motion.div
-              layout
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className={`absolute top w-[calc(50%-4px)] h-10 bg-lime-400 rounded-full z-0 transition-all duration-300 ${
-                isTrending ? "left-1" : "left-1/2"
-              }`}
-            />
-            <div className="relative z-10 flex justify-between w-full text-sm font-semibold text-white px-2">
-              <div className={`w-1/2 text-center ${isTrending ? "text-black" : "text-white/70"}`}>
-                Trending
-              </div>
-              <div className={`w-1/2 text-center ${isTrending ? "text-white/70" : "text-black"}`}>
-                All
+            <div
+              className="relative w-60 h-12 rounded-full bg-white/10 border border-white/20 flex items-center cursor-pointer"
+              onClick={() => {
+                setActiveTab(isTrending ? "all" : "trending");
+                setVisibleCount(14);
+              }}
+            >
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className={`absolute top w-[calc(50%-4px)] h-10 bg-lime-400 rounded-full z-0 transition-all duration-300 ${
+                  isTrending ? "left-1" : "left-1/2"
+                }`}
+              />
+              <div className="relative z-10 flex justify-between w-full text-sm font-semibold text-white px-2">
+                <div
+                  className={`w-1/2 text-center ${
+                    isTrending ? "text-black" : "text-white/70"
+                  }`}
+                >
+                  Trending
+                </div>
+                <div
+                  className={`w-1/2 text-center ${
+                    isTrending ? "text-white/70" : "text-black"
+                  }`}
+                >
+                  All
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Prompt Grid */}
+        {/* Prompts Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <AnimatePresence mode="popLayout">
             {promptsToShow.map((prompt, index) => (
@@ -114,11 +139,11 @@ export default function Home() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Load More Button */}
+        {/* Load More */}
         {!isTrending && !searchTerm && visibleCount < allPrompts.length && (
           <div className="text-center mb-20">
             <button
-              onClick={() => setVisibleCount((prev) => prev + 4)}
+              onClick={() => setVisibleCount((prev) => prev + 6)}
               className="px-6 py-2 rounded-full bg-lime-500 hover:bg-lime-400 text-black font-semibold shadow transition"
             >
               Load More
@@ -126,9 +151,12 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🔍 Modal for Selected Prompt */}
+        {/* Modal Prompt View */}
         {selectedPrompt && (
-          <ModalPrompt prompt={selectedPrompt} onClose={() => setSelectedPrompt(null)} />
+          <ModalPrompt
+            prompt={selectedPrompt}
+            onClose={() => setSelectedPrompt(null)}
+          />
         )}
 
         <Footer />

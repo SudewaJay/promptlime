@@ -37,12 +37,12 @@ export default function Header() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search prompts..."
-                className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-sm placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-lime-400 transition"
+                className="px-4 py-2 text-sm text-white placeholder:text-white/50 rounded-full border border-lime-400 bg-lime-400/10 shadow-[0_0_10px_rgba(163,230,53,0.4)] outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-500 transition"
               />
               <X
                 size={20}
                 aria-label="Close search"
-                className="cursor-pointer hover:text-lime-400 transition"
+                className="cursor-pointer text-white hover:text-lime-400 transition"
                 onClick={() => {
                   setShowSearch(false);
                   setSearchTerm("");
@@ -53,7 +53,7 @@ export default function Header() {
             <Search
               size={20}
               aria-label="Open search"
-              className="cursor-pointer hover:text-lime-400 transition"
+              className="cursor-pointer hover:text-lime-400 transition hover:drop-shadow-[0_0_4px_rgba(163,230,53,0.8)]"
               onClick={() => setShowSearch(true)}
             />
           )}
@@ -75,7 +75,6 @@ export default function Header() {
             </button>
           ) : (
             <div className="flex items-center gap-3">
-              {/* ✅ Avatar or Fallback */}
               {session.user?.image ? (
                 <Image
                   src={session.user.image}
