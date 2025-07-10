@@ -82,7 +82,7 @@ export default function Home() {
         {/* Sticky Toggle Header */}
         <div className="sticky top-20 z-20 bg-transparent pt-4 pb-6 mb-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
-            <h1 className="text-3xl font-bold text-left">ChatGPT Prompts</h1>
+            <h1 className="text-3xl font-bold text-left">Promplime – Best ChatGPT Prompts</h1>
 
             <div
               className="relative w-60 h-12 rounded-full bg-white/10 border border-white/20 flex items-center cursor-pointer"

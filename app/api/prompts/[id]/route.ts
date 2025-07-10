@@ -1,5 +1,6 @@
 import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/authOptions";
 import { cookies } from "next/headers";
@@ -15,53 +16,88 @@ export async function PATCH(
     const cookieStore = await cookies();
     const { action } = await req.json();
 
-    // 👉 Handle copy count logic
-    if (action === "incrementCopyCount") {
-      let allowCopy = true;
-      const headers = new Headers();
+    // Only handle copy count
+    if (action !== "incrementCopyCount") {
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
 
-      // 🧑 Guest user (not logged in)
-      if (!session?.user) {
-        const copiedOnce = cookieStore.get("copied_once");
+    const headers = new Headers();
+    let allowCopy = true;
 
-        if (copiedOnce?.value === "true") {
-          allowCopy = false;
-        } else {
-          // ✅ Set cookie via response header (must return response manually)
-          headers.append("Set-Cookie", `copied_once=true; Path=/; Max-Age=86400; SameSite=Lax`);
-        }
+    // 🌐 GUEST USER — 1 copy per day via cookie
+    if (!session?.user) {
+      const copiedOnce = cookieStore.get("copied_once");
+
+      if (copiedOnce?.value === "true") {
+        allowCopy = false;
+      } else {
+        headers.append(
+          "Set-Cookie",
+          `copied_once=true; Path=/; Max-Age=86400; SameSite=Lax`
+        );
+      }
+    }
+
+    // 👤 LOGGED-IN USER — 5 copies/month (unless Pro)
+    if (session?.user?.email) {
+      const user = await User.findOne({ email: session.user.email });
+
+      if (!user) {
+        return NextResponse.json({ error: "User not found." }, { status: 404 });
       }
 
-      // 👤 Logged-in user (basic rate limit of 5/day stored in DB)
-      if (session?.user) {
-        // TODO: ideally, store daily copy counts per user in DB
-        // For now, skip DB logic and allow all copies
-        // Extend this in your User model later
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // Reset monthly if outdated
+      if (!user.lastReset || user.lastReset < startOfMonth) {
+        user.copyCount = 0;
+        user.lastReset = now;
+        await user.save();
       }
 
-      if (!allowCopy) {
+      // Not a Pro user — check limit
+      if (!user.isPro && user.copyCount >= 5) {
         return NextResponse.json(
-          { error: "Only one prompt allowed for guests. Please login." },
+          {
+            error:
+              "Monthly limit reached. Upgrade to Pro for unlimited access.",
+          },
           { status: 403 }
         );
       }
 
-      // ✅ Update Prompt copy count
-      const updated = await Prompt.findByIdAndUpdate(
-        params.id,
-        { $inc: { copyCount: 1 } },
-        { new: true }
-      );
-
-      return new NextResponse(JSON.stringify({ success: true, prompt: updated }), {
-        status: 200,
-        headers,
-      });
+      // ✅ Allow copy and increment
+      user.copyCount += 1;
+      await user.save();
     }
 
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (err) {
-    console.error("Error in PATCH handler:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    if (!allowCopy) {
+      return NextResponse.json(
+        {
+          error:
+            "Guests can only copy one prompt. Please login to continue.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // ✅ Increment prompt's copy count
+    const updatedPrompt = await Prompt.findByIdAndUpdate(
+      params.id,
+      { $inc: { copyCount: 1 } },
+      { new: true }
+    );
+
+    return new NextResponse(
+      JSON.stringify({ success: true, prompt: updatedPrompt }),
+      { status: 200, headers }
+    );
+  } catch (error) {
+    console.error("❌ Error in PATCH /prompts/:id:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

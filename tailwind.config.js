@@ -14,7 +14,8 @@ module.exports = {
       },
       animation: {
         wiggle: "wiggle 6s ease-in-out infinite",
-        text: "text 5s ease infinite", // 👈 Add this line
+        text: "text 5s ease infinite",         // Already present
+        "gradient-x": "gradient-x 5s ease infinite", // ✅ Add this
       },
       keyframes: {
         wiggle: {
@@ -22,7 +23,6 @@ module.exports = {
           "50%": { transform: "translateY(-30px) translateX(15px)" },
         },
         text: {
-          // 👇 Add this keyframe block
           "0%, 100%": {
             backgroundSize: "200% 200%",
             backgroundPosition: "left center",
@@ -32,8 +32,18 @@ module.exports = {
             backgroundPosition: "right center",
           },
         },
+        // ✅ Add this keyframe
+        "gradient-x": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+  ],
 };
