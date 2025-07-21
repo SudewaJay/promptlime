@@ -49,4 +49,6 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
+
+// ✅ These exports are required for Next.js route handlers
 export { handler as GET, handler as POST };

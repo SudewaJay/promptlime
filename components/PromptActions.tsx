@@ -1,22 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Clipboard, Check, Heart, Share2 } from "lucide-react";
 
 interface Props {
   _id: string;
   likes?: number;
-  // Removed copyCount since it's unused
+  copyCount?: number;
+  shareUrl: string
 }
 
 export default function PromptActions({ _id, likes = 0 }: Props) {
   const [copied, setCopied] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
   const [isLiked, setIsLiked] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
-  const shareUrl = `${window.location.origin}/prompt/${_id}`;
+  // Avoid window access on SSR
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setShareUrl(`${window.location.origin}/prompt/${_id}`);
+    }
+  }, [_id]);
 
+  // Handle Copy
   const handleCopy = async () => {
+    if (!shareUrl) return;
+
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
@@ -33,6 +43,7 @@ export default function PromptActions({ _id, likes = 0 }: Props) {
     }
   };
 
+  // Handle Like / Unlike
   const handleLike = async () => {
     const action = isLiked ? "decrementLike" : "incrementLike";
 
@@ -52,7 +63,7 @@ export default function PromptActions({ _id, likes = 0 }: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-3 mb-3">
-      {/* 📋 Copy */}
+      {/* 📋 Copy Button */}
       <button
         onClick={handleCopy}
         className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all border backdrop-blur-md ${
@@ -65,7 +76,7 @@ export default function PromptActions({ _id, likes = 0 }: Props) {
         {copied ? "Copied" : "Copy Prompt"}
       </button>
 
-      {/* ❤️ Like */}
+      {/* ❤️ Like Button */}
       <button
         onClick={handleLike}
         className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${
@@ -78,9 +89,9 @@ export default function PromptActions({ _id, likes = 0 }: Props) {
         {likeCount}
       </button>
 
-      {/* 🔗 Share */}
+      {/* 🔗 Share Button */}
       <button
-        onClick={handleCopy} // This copies the same URL as Copy, so it's OK if intentional
+        onClick={handleCopy} // Optionally can open native share or use modal
         className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
       >
         <Share2 size={16} /> Share

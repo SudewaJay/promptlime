@@ -72,7 +72,7 @@ export default async function PromptPage({ params }: Params) {
 
             {/* 🎛️ Actions */}
             <PromptActions
-              id={params.id}
+              _id={params.id}
               likes={prompt.likes}
               copyCount={prompt.copyCount}
               shareUrl={shareUrl}

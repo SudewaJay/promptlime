@@ -15,17 +15,17 @@ interface PromptUpdateBody {
   likes?: number;
   copyCount?: number;
   views?: number;
-  // add any other updatable fields here
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+  const { params } = context;
+
   try {
     await connectToDatabase();
+
     const session = await getServerSession(authOptions);
     const cookieStore = await cookies();
+
     const { action } = await req.json();
 
     if (action !== "incrementCopyCount") {
@@ -35,6 +35,7 @@ export async function PATCH(
     const headers = new Headers();
     let allowCopy = true;
 
+    // Guest copy limit logic
     if (!session?.user) {
       const copiedOnce = cookieStore.get("copied_once");
       if (copiedOnce?.value === "true") {
@@ -65,8 +66,7 @@ export async function PATCH(
       if (!user.isPro && user.copyCount >= 5) {
         return NextResponse.json(
           {
-            error:
-              "Monthly limit reached. Upgrade to Pro for unlimited access.",
+            error: "Monthly limit reached. Upgrade to Pro for unlimited access.",
           },
           { status: 403 }
         );
@@ -79,8 +79,7 @@ export async function PATCH(
     if (!allowCopy) {
       return NextResponse.json(
         {
-          error:
-            "Guests can only copy one prompt. Please login to continue.",
+          error: "Guests can only copy one prompt. Please login to continue.",
         },
         { status: 403 }
       );
@@ -98,41 +97,36 @@ export async function PATCH(
     );
   } catch (error) {
     console.error("❌ Error in PATCH /prompts/:id:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
+  const { params } = context;
 
-  if (!id) {
+  if (!params?.id) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
   }
 
   try {
     await connectToDatabase();
+    const data = await Prompt.findById(params.id);
 
-    const data = await getPromptById(id);
+    if (!data) {
+      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
-    console.error("❌ Error in GET /prompts:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("❌ Error in GET /prompts/:id:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function PUT(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
+export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+  const { params } = context;
 
-  if (!id) {
+  if (!params?.id) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
   }
 
@@ -140,25 +134,17 @@ export async function PUT(req: Request) {
 
   try {
     await connectToDatabase();
+    const updatedPrompt = await Prompt.findByIdAndUpdate(params.id, body, {
+      new: true,
+    });
 
-    const updatedPrompt = await updatePrompt(id, body);
+    if (!updatedPrompt) {
+      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ updatedPrompt }, { status: 200 });
   } catch (error) {
-    console.error("❌ Error in PUT /prompts:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("❌ Error in PUT /prompts/:id:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-}
-
-// Helper function to get a prompt by ID
-async function getPromptById(id: string) {
-  return await Prompt.findById(id);
-}
-
-// Helper function to update a prompt by ID
-async function updatePrompt(id: string, body: PromptUpdateBody) {
-  return await Prompt.findByIdAndUpdate(id, body, { new: true });
 }
