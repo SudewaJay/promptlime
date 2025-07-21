@@ -39,8 +39,8 @@ export default function AboutPage() {
             What Makes Us Different
           </h3>
           <p className="text-white/80">
-            Our team is built on passion and precision. We do not just design —
-            we solve problems with style.
+          Our team is built on passion and precision. We don&apos;t just design —
+          we solve problems with style.
           </p>
         </WobbleCard>
       </section>
