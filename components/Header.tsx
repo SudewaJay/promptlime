@@ -12,20 +12,20 @@ export default function Header() {
   const { searchTerm, setSearchTerm } = useSearch();
   const [showSearch, setShowSearch] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [copiesLeft, setCopiesLeft] = useState<number | null>(null);
+  const [copyCount, setCopyCount] = useState<number>(0);
   const dropdownRef = useRef(null);
 
   const { data: session } = useSession();
   const isPro = (session?.user as any)?.isPro;
 
+  // Fetch user's copied prompts count
   useEffect(() => {
     const fetchCopyCount = async () => {
       if (!session?.user || isPro) return;
       try {
         const res = await fetch("/api/user/copy-count");
         const data = await res.json();
-        const left = 5 - (data.copyCount || 0);
-        setCopiesLeft(left < 0 ? 0 : left);
+        setCopyCount(data.copyCount || 0);
       } catch (error) {
         console.error("Failed to fetch copy count", error);
       }
@@ -33,6 +33,7 @@ export default function Header() {
     fetchCopyCount();
   }, [session, isPro]);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -64,14 +65,14 @@ export default function Header() {
         <div className="flex items-center gap-5 text-gray-300 relative z-[70]">
           {/* 🔍 Search Input */}
           {showSearch ? (
-            <div className="flex items-center gap-2 w-[240px] z-[70]">
+            <div className="relative z-50 flex items-center gap-2 w-[240px]">
               <input
                 autoFocus
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search prompts..."
-                className="w-full px-4 py-2 text-sm text-white placeholder:text-white/50 rounded-full border border-lime-400 bg-lime-400/10 shadow outline-none focus:ring-2 focus:ring-lime-400"
+                className="w-full px-4 py-2 text-sm text-white placeholder:text-white/50 rounded-full border border-lime-400 bg-lime-400/10 shadow outline-none focus:ring-2 focus:ring-lime-400 focus:outline-none"
               />
               <X
                 size={20}
@@ -83,33 +84,28 @@ export default function Header() {
               />
             </div>
           ) : (
-            <div className="relative hidden md:flex group">
-              <Search
-                size={20}
-                className="cursor-pointer hover:text-lime-400 transition"
-                onClick={() => setShowSearch(true)}
-              />
-              <div className="absolute left-1/2 -translate-x-1/2 top-[150%] text-xs hidden group-hover:flex bg-neutral-900 text-white px-2 py-1 rounded shadow">
-                Search
-              </div>
-            </div>
+            <Search
+              size={20}
+              className="cursor-pointer hover:text-lime-400 transition hidden md:flex"
+              onClick={() => setShowSearch(true)}
+            />
           )}
 
           {/* 🔔 Notifications */}
-          <div className="relative hidden md:flex group">
-            <Bell
-              size={20}
-              className="hover:text-lime-400 cursor-pointer transition"
-            />
-            <div className="absolute left-1/2 -translate-x-1/2 top-[150%] text-xs hidden group-hover:flex bg-neutral-900 text-white px-2 py-1 rounded shadow">
-              Notifications
-            </div>
-          </div>
+          <Bell
+            size={20}
+            className="hover:text-lime-400 cursor-pointer transition hidden md:flex"
+          />
 
-          {/* 📊 Copies Left */}
-          {session?.user && (
+          {/* 📊 Copied Prompts Count */}
+          {session?.user && !isPro && (
             <span className="text-xs text-white/70 bg-white/10 px-3 py-1 rounded-full border border-white/10 hidden sm:block">
-              {isPro ? "∞ Unlimited" : `${copiesLeft ?? 5} left`}
+              {copyCount} / 5 copied
+            </span>
+          )}
+          {session?.user && isPro && (
+            <span className="text-xs text-white/70 bg-white/10 px-3 py-1 rounded-full border border-white/10 hidden sm:block">
+              ∞ Unlimited
             </span>
           )}
 

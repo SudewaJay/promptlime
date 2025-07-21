@@ -1,5 +1,62 @@
 "use client";
 
+import React from "react";
+import { SparklesCore } from "@/components/ui/sparkles";
+
+export default function ComingSoonPage() {
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center overflow-hidden relative px-6">
+      
+      {/* 🌈 Lime Blur Background */}
+      <div className="fixed top-0 left-0 w-full h-[45vh] bg-gradient-to-b from-lime-400/40 to-transparent blur-3xl z-0 pointer-events-none" />
+
+      {/* ✨ Title */}
+      <h1 className="md:text-7xl text-4xl lg:text-7xl font-semibold text-center text-white relative z-20 mb-8">
+        Promptlime Coming Soon
+      </h1>
+      
+      {/* 🌌 Sparkles & Gradients */}
+      <div className="relative w-full max-w-4xl h-40">
+        {/* Gradient Lines */}
+        <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-lime-400 to-transparent h-[2px] w-3/4 blur-sm" />
+        <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-lime-400 to-transparent h-px w-3/4" />
+        <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-green-400 to-transparent h-[5px] w-1/4 blur-sm" />
+        <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-green-400 to-transparent h-px w-1/4" />
+
+        {/* Sparkles */}
+        <SparklesCore
+          background="transparent"
+          minSize={0.4}
+          maxSize={1}
+          particleDensity={1200}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+
+        {/* Radial Mask */}
+        <div className="absolute inset-0 w-full h-full bg-black [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]"></div>
+      </div>
+              {/* Bottom Tagline */}
+              <div className="text-center py-4">
+                <a
+                  href="https://uniixstudio.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-center gap-1 text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-orange-500 to-yellow-500 animate-text text-sm font-medium hover:underline"
+                >
+                  Product of Uniix Studio
+                </a>
+              </div>
+    </div>
+  );
+}
+
+
+/* 
+👇 Original homepage preserved below. Will render once you uncomment after launch.
+
+"use client";
+
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PromptCard from "@/components/PromptCard";
@@ -60,7 +117,6 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#0f0f0f]/80 via-[#0f0f0f]/60 to-[#0f0f0f]/0 text-white overflow-hidden">
-      {/* ✨ Sparkles Background */}
       <div className="absolute inset-0 -z-10">
         <SparklesCore
           id="tsparticlesfullpage"
@@ -75,15 +131,12 @@ export default function Home() {
 
       <Header />
 
-      {/* 🌈 Lime glow overlay */}
       <div className="fixed top-0 left-0 w-full h-[45vh] bg-gradient-to-b from-lime-400/40 to-transparent blur-3xl z-0 pointer-events-none" />
 
       <main className="relative z-10 max-w-6xl mx-auto px-6 py-10">
-        {/* Sticky Toggle Header */}
         <div className="sticky top-20 z-20 bg-transparent pt-4 pb-6 mb-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
             <h1 className="text-3xl font-bold text-left">Promplime – Best ChatGPT Prompts</h1>
-
             <div
               className="relative w-60 h-12 rounded-full bg-white/10 border border-white/20 flex items-center cursor-pointer"
               onClick={() => {
@@ -99,18 +152,10 @@ export default function Home() {
                 }`}
               />
               <div className="relative z-10 flex justify-between w-full text-sm font-semibold text-white px-2">
-                <div
-                  className={`w-1/2 text-center ${
-                    isTrending ? "text-black" : "text-white/70"
-                  }`}
-                >
+                <div className={`w-1/2 text-center ${isTrending ? "text-black" : "text-white/70"}`}>
                   Trending
                 </div>
-                <div
-                  className={`w-1/2 text-center ${
-                    isTrending ? "text-white/70" : "text-black"
-                  }`}
-                >
+                <div className={`w-1/2 text-center ${isTrending ? "text-white/70" : "text-black"}`}>
                   All
                 </div>
               </div>
@@ -118,7 +163,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Prompts Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <AnimatePresence mode="popLayout">
             {promptsToShow.map((prompt, index) => (
@@ -139,7 +183,6 @@ export default function Home() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Load More */}
         {!isTrending && !searchTerm && visibleCount < allPrompts.length && (
           <div className="text-center mb-20">
             <button
@@ -151,7 +194,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Modal Prompt View */}
         {selectedPrompt && (
           <ModalPrompt
             prompt={selectedPrompt}
@@ -164,3 +206,4 @@ export default function Home() {
     </div>
   );
 }
+*/
