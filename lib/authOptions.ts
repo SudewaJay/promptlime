@@ -1,9 +1,23 @@
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/clientPromise";
-import { AuthOptions } from "next-auth";
-import User from "@/models/User"; // ✅ use Mongoose model
+import { AuthOptions, Session, User as NextAuthUser } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import User from "@/models/User";
 import connectToDatabase from "@/lib/mongodb";
+
+interface ExtendedToken extends JWT {
+  isPro?: boolean;
+  sub?: string;
+}
+
+interface ExtendedSession extends Session {
+  user: Session["user"] & {
+    id: string;         // now id is always string
+    isPro: boolean;
+    copiesLeft?: number;
+  };
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -23,12 +37,11 @@ export const authOptions: AuthOptions = {
     signIn: "/signin",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: NextAuthUser }): Promise<ExtendedToken> {
       if (user) {
         token.sub = user.id ?? token.sub;
       }
 
-      // 🟡 Fetch user from DB to get isPro
       try {
         await connectToDatabase();
         const dbUser = await User.findOne({ email: token.email });
@@ -40,20 +53,24 @@ export const authOptions: AuthOptions = {
         console.error("🔴 Failed to fetch user in JWT callback:", err);
       }
 
-      return token;
+      return token as ExtendedToken;
     },
 
-    async session({ session, token }) {
-      if (!session.user || !token) return session;
+    async session({ session, token }: { session: Session; token: JWT }): Promise<ExtendedSession> {
+      const extToken = token as ExtendedToken;
+      const extSession = session as ExtendedSession;
 
-      (session.user as any).id = token.sub;
-      (session.user as any).isPro = token.isPro || false;
+      if (!extSession.user || !extToken) return extSession;
+
+      // FIX: ensure id is always string
+      extSession.user.id = extToken.sub ?? "";
+      extSession.user.isPro = extToken.isPro || false;
 
       try {
         await connectToDatabase();
-        const dbUser = await User.findOne({ email: session.user.email });
+        const dbUser = await User.findOne({ email: extSession.user.email });
 
-        if (!dbUser) return session;
+        if (!dbUser) return extSession;
 
         const today = new Date().toDateString();
         const lastCopyDate = dbUser.lastCopyDate?.toDateString();
@@ -62,12 +79,12 @@ export const authOptions: AuthOptions = {
         const copiesUsedToday = isSameDay ? dbUser.copiesToday || 0 : 0;
         const copiesLeft = dbUser.isPro ? Infinity : Math.max(0, 5 - copiesUsedToday);
 
-        (session.user as any).copiesLeft = copiesLeft;
+        extSession.user.copiesLeft = copiesLeft;
       } catch (err) {
         console.error("🔴 Failed to fetch user in session callback:", err);
       }
 
-      return session;
+      return extSession;
     },
   },
 };

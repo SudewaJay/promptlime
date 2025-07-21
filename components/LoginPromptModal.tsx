@@ -1,86 +1,142 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Clipboard, Heart, Share2 } from "lucide-react";
+import copy from "copy-to-clipboard";
+import Image from "next/image";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-export default function LoginPromptModal({
-  onClose,
-}: {
+dayjs.extend(relativeTime);
+
+interface PromptModalProps {
+  isOpen: boolean;
   onClose: () => void;
-}) {
+  prompt: {
+    _id: string;
+    title: string;
+    category: string;
+    prompt: string;
+    image?: string;
+    createdAt: string;
+    author?: { name?: string; image?: string };
+    likes?: number;
+    tags?: string[];
+  };
+}
+
+export default function PromptModal({ isOpen, onClose, prompt }: PromptModalProps) {
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
+  const handleCopy = () => {
+    copy(prompt.prompt);
+    // You can replace this with a toast message
+    console.log("📋 Prompt copied!");
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <AnimatePresence>
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-20 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0 max-w-3xl w-full"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
       >
-        {/* Gradient Glow */}
-        <svg
-          viewBox="0 0 1024 1024"
-          aria-hidden="true"
-          className="absolute top-1/2 left-1/2 -z-10 size-256 -translate-y-1/2 mask-[radial-gradient(closest-side,white,transparent)] lg:-translate-x-1/2"
+        <motion.div
+          className="relative bg-[#121212] max-w-2xl w-full rounded-xl p-6 text-white shadow-xl"
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0.95 }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <circle
-            r={512}
-            cx={512}
-            cy={512}
-            fill="url(#glowGradient)"
-            fillOpacity="0.7"
-          />
-          <defs>
-            <radialGradient id="glowGradient">
-              <stop stopColor="#84f49d" />
-              <stop offset={1} stopColor="#22c55e" />
-            </radialGradient>
-          </defs>
-        </svg>
+          {/* ❌ Close Button */}
+          <button
+            className="absolute top-4 right-4 text-white hover:text-red-500"
+            onClick={onClose}
+            aria-label="Close Modal"
+          >
+            <X size={20} />
+          </button>
 
-        {/* Close Button */}
-        <button
-          className="absolute top-4 right-4 text-white/70 hover:text-white"
-          onClick={onClose}
-        >
-          <X />
-        </button>
+          {/* 📝 Title + Category */}
+          <h2 className="text-2xl font-bold mb-1">{prompt.title}</h2>
+          <div className="text-sm text-lime-400 mb-3">{prompt.category}</div>
 
-        {/* Content */}
-        <div className="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-24 lg:text-left">
-          <h2 className="text-3xl font-semibold tracking-tight text-balance text-lime-400 sm:text-4xl">
-            Enjoying Our Prompts?
-          </h2>
-          <p className="mt-6 text-md leading-6 text-gray-300">
-            To continue copying and discovering more creative prompts, please log in.
-            As a member, you'll get <strong className="text-white">4 more free copies</strong> today!
-          </p>
+          {/* 🖼️ Optional Image */}
+          {prompt.image && (
+            <Image
+              src={prompt.image}
+              alt={prompt.title}
+              width={800}
+              height={400}
+              className="rounded-xl mb-4 w-full object-cover max-h-[300px]"
+            />
+          )}
 
-          <div className="mt-8 flex items-center justify-center lg:justify-start">
-            <button
-              onClick={() => signIn("google")}
-              className="flex items-center gap-2 bg-white text-black px-5 py-2.5 text-sm font-semibold rounded-full shadow-md hover:bg-gray-100 transition"
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="w-5 h-5"
+          {/* 📋 Prompt Text */}
+          <pre className="whitespace-pre-wrap text-gray-300 mb-4 text-sm bg-white/5 p-4 rounded-xl">
+            {prompt.prompt}
+          </pre>
+
+          {/* 👤 Author + Date */}
+          <div className="flex items-center gap-3 text-sm text-gray-400 mb-4">
+            {prompt.author?.image && (
+              <Image
+                src={prompt.author.image}
+                alt={prompt.author.name || "User Avatar"}
+                width={30}
+                height={30}
+                className="rounded-full"
               />
-              Login with Google
-            </button>
+            )}
+            <span>{prompt.author?.name || "Anonymous"}</span>
+            <span>·</span>
+            <span>{dayjs(prompt.createdAt).fromNow()}</span>
           </div>
-        </div>
 
-        {/* Right side image */}
-        <div className="relative mt-16 h-60 w-full hidden lg:block lg:mt-8">
-          <img
-            src="https://tailwindcss.com/plus-assets/img/component-images/dark-project-app-screenshot.png"
-            alt="Example preview"
-            className="absolute top-0 left-0 w-[300px] max-w-none rounded-md bg-white/5 ring-1 ring-white/10"
-          />
-        </div>
+          {/* 💬 Tags */}
+          {(prompt.tags ?? []).length > 0 && (
+            <div className="flex flex-wrap gap-2 text-xs mb-4">
+              {prompt.tags!.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-white/10 px-2 py-1 rounded-full text-white/80"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* ⚙️ Actions */}
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4">
+              <button onClick={handleCopy} className="hover:text-lime-400 flex items-center gap-1">
+                <Clipboard size={18} /> Copy
+              </button>
+              <button className="hover:text-pink-400 flex items-center gap-1">
+                <Heart size={18} /> {prompt.likes || 0}
+              </button>
+            </div>
+            <div className="flex gap-3">
+              <Share2
+                size={18}
+                className="hover:text-blue-400 cursor-pointer"
+                aria-label="Share"
+              />
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
-    </div>
+    </AnimatePresence>
   );
 }

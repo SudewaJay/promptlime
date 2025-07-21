@@ -1,8 +1,3 @@
-// Step 1: Create Modal Component
-// Terminal:
-// mkdir components
-// touch components/PromptModal.tsx
-
 "use client";
 
 import { useEffect } from "react";
@@ -69,13 +64,18 @@ export default function PromptModal({ isOpen, onClose, prompt }: PromptModalProp
           <h2 className="text-2xl font-bold mb-1">{prompt.title}</h2>
           <div className="text-sm text-lime-400 mb-3">{prompt.category}</div>
 
-          {/* 🖼️ Optional Image */}
+          {/* 🖼️ Optimized Image */}
           {prompt.image && (
-            <img
-              src={prompt.image}
-              alt={prompt.title}
-              className="rounded-xl mb-4 w-full object-cover"
-            />
+            <div className="relative w-full h-64 mb-4 rounded-xl overflow-hidden">
+              <Image
+                src={prompt.image}
+                alt={prompt.title}
+                layout="fill"
+                objectFit="cover"
+                className="rounded-xl"
+                priority
+              />
+            </div>
           )}
 
           {/* 📋 Prompt Text */}
@@ -100,7 +100,7 @@ export default function PromptModal({ isOpen, onClose, prompt }: PromptModalProp
           </div>
 
           {/* 💬 Tags */}
-          {prompt.tags?.length && (
+          {prompt.tags && prompt.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 text-xs mb-4">
               {prompt.tags.map((tag) => (
                 <span key={tag} className="bg-white/10 px-2 py-1 rounded-full">

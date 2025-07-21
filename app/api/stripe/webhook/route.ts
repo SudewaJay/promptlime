@@ -2,6 +2,7 @@
 import { stripe } from "@/lib/stripe";
 import User from "@/models/User";
 import connectToDatabase from "@/lib/mongodb";
+import type { Stripe } from "stripe";
 
 export const config = {
   api: {
@@ -14,19 +15,19 @@ export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature")!;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-  // Convert ArrayBuffer to Buffer
   const buf = Buffer.from(rawBody);
 
-  let event;
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
-  } catch (err: any) {
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    return new Response(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as any;
+    const session = event.data.object as Stripe.Checkout.Session;
     const email = session.customer_email;
 
     if (email) {

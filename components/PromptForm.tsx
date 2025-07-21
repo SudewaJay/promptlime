@@ -13,7 +13,9 @@ export default function PromptForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -33,10 +35,11 @@ export default function PromptForm() {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        alert("Error submitting prompt.");
+        alert("❌ Error submitting prompt.");
       }
     } catch (err) {
-      alert("Server error.");
+      console.error("Server error:", err); // ✅ using 'err' here to fix ESLint warning
+      alert("❌ Server error.");
     } finally {
       setLoading(false);
     }
@@ -99,7 +102,9 @@ export default function PromptForm() {
       </button>
 
       {success && (
-        <p className="mt-3 text-green-400 text-sm">✅ Prompt submitted successfully!</p>
+        <p className="mt-3 text-green-400 text-sm">
+          ✅ Prompt submitted successfully!
+        </p>
       )}
     </form>
   );

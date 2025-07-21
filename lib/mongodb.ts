@@ -7,7 +7,7 @@ if (!MONGODB_URI) {
 }
 
 // Global caching for hot reload in development (Next.js optimization)
-let globalWithMongoose = global as typeof globalThis & {
+const globalWithMongoose = global as typeof globalThis & {
   mongoose: { conn: Connection | null; promise: Promise<Connection> | null };
 };
 
@@ -21,9 +21,11 @@ async function connectToDatabase(): Promise<Connection> {
   }
 
   if (!globalWithMongoose.mongoose.promise) {
-    globalWithMongoose.mongoose.promise = mongoose.connect(MONGODB_URI!, {
-      bufferCommands: false,
-    }).then(mongooseInstance => mongooseInstance.connection as Connection);
+    globalWithMongoose.mongoose.promise = mongoose
+      .connect(MONGODB_URI!, {
+        bufferCommands: false,
+      })
+      .then((mongooseInstance) => mongooseInstance.connection as Connection);
   }
 
   globalWithMongoose.mongoose.conn = await globalWithMongoose.mongoose.promise;
@@ -31,6 +33,3 @@ async function connectToDatabase(): Promise<Connection> {
 }
 
 export default connectToDatabase;
-
-let cached: unknown;
-

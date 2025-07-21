@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PromptActions from "@/components/PromptActions";
 import AnimatedCTA from "@/components/AnimatedCTA";
 import { formatDistanceToNow } from "date-fns";
+import Image from "next/image"; // <-- import Image here
 
 type Params = {
   params: { id: string };
@@ -34,7 +35,8 @@ export default async function PromptPage({ params }: Params) {
 
   if (!prompt) return notFound();
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/prompt/${prompt._id}`;
+  const shareUrl =
+    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/prompt/${prompt._id}`;
 
   return (
     <div className="relative min-h-screen bg-[#0f0f0f] text-white">
@@ -47,11 +49,16 @@ export default async function PromptPage({ params }: Params) {
         <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* 🖼️ Image */}
           {prompt.image && (
-            <img
-              src={prompt.image}
-              alt={prompt.title}
-              className="w-full md:w-64 h-64 object-cover rounded-xl"
-            />
+            <div className="relative w-full md:w-64 h-64 rounded-xl overflow-hidden">
+              <Image
+                src={prompt.image}
+                alt={prompt.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 16rem"
+                priority
+              />
+            </div>
           )}
 
           {/* 📄 Content */}
@@ -77,7 +84,8 @@ export default async function PromptPage({ params }: Params) {
               <span>👁️ {prompt.views ?? 0} views</span>
               {prompt.createdAt && (
                 <span>
-                  🕒 {formatDistanceToNow(new Date(prompt.createdAt), {
+                  🕒{" "}
+                  {formatDistanceToNow(new Date(prompt.createdAt), {
                     addSuffix: true,
                   })}
                 </span>

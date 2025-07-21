@@ -6,10 +6,10 @@ import { Clipboard, Check, Heart, Share2 } from "lucide-react";
 interface Props {
   _id: string;
   likes?: number;
-  copyCount?: number;
+  // Removed copyCount since it's unused
 }
 
-export default function PromptActions({ _id, likes = 0, copyCount = 0 }: Props) {
+export default function PromptActions({ _id, likes = 0 }: Props) {
   const [copied, setCopied] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
   const [isLiked, setIsLiked] = useState(false);
@@ -80,7 +80,7 @@ export default function PromptActions({ _id, likes = 0, copyCount = 0 }: Props) 
 
       {/* 🔗 Share */}
       <button
-        onClick={handleCopy}
+        onClick={handleCopy} // This copies the same URL as Copy, so it's OK if intentional
         className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
       >
         <Share2 size={16} /> Share

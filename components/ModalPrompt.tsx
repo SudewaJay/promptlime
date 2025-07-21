@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Clipboard, Check, Heart, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import Image from "next/image";
 
 type Prompt = {
   _id?: string;
@@ -115,13 +116,18 @@ export default function ModalPrompt({
 
           {/* 🧩 Layout: Image + Content */}
           <div className="flex flex-col md:flex-row gap-6">
-            {/* 🖼️ Image Left (larger) */}
+            {/* 🖼️ Image */}
             {prompt.image && (
-              <img
-                src={prompt.image}
-                alt={prompt.title}
-                className="w-full md:w-60 h-65 object-cover rounded-xl"
-              />
+              <div className="relative w-full md:w-60 h-64 md:h-64 rounded-xl overflow-hidden">
+                <Image
+                  src={prompt.image}
+                  alt={prompt.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 240px"
+                  priority
+                />
+              </div>
             )}
 
             {/* 📄 Text Content */}
@@ -179,7 +185,7 @@ export default function ModalPrompt({
                   </button>
                 </div>
 
-                {/* 📊 Stats Row */}
+                {/* 📊 Stats */}
                 <div className="text-xs text-white/50 flex gap-4 sm:ml-auto">
                   <span>📋 {prompt.copyCount ?? 0} copies</span>
                   <span>👁️ {prompt.views ?? 0} views</span>

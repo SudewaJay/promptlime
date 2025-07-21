@@ -6,6 +6,18 @@ import authOptions from "@/lib/authOptions";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+// Define the shape of the update body for Prompt
+interface PromptUpdateBody {
+  title?: string;
+  category?: string;
+  prompt?: string;
+  image?: string;
+  likes?: number;
+  copyCount?: number;
+  views?: number;
+  // add any other updatable fields here
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -16,7 +28,6 @@ export async function PATCH(
     const cookieStore = await cookies();
     const { action } = await req.json();
 
-    // Only handle copy count
     if (action !== "incrementCopyCount") {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
@@ -24,10 +35,8 @@ export async function PATCH(
     const headers = new Headers();
     let allowCopy = true;
 
-    // 🌐 GUEST USER — 1 copy per day via cookie
     if (!session?.user) {
       const copiedOnce = cookieStore.get("copied_once");
-
       if (copiedOnce?.value === "true") {
         allowCopy = false;
       } else {
@@ -38,10 +47,8 @@ export async function PATCH(
       }
     }
 
-    // 👤 LOGGED-IN USER — 5 copies/month (unless Pro)
     if (session?.user?.email) {
       const user = await User.findOne({ email: session.user.email });
-
       if (!user) {
         return NextResponse.json({ error: "User not found." }, { status: 404 });
       }
@@ -49,14 +56,12 @@ export async function PATCH(
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      // Reset monthly if outdated
       if (!user.lastReset || user.lastReset < startOfMonth) {
         user.copyCount = 0;
         user.lastReset = now;
         await user.save();
       }
 
-      // Not a Pro user — check limit
       if (!user.isPro && user.copyCount >= 5) {
         return NextResponse.json(
           {
@@ -67,7 +72,6 @@ export async function PATCH(
         );
       }
 
-      // ✅ Allow copy and increment
       user.copyCount += 1;
       await user.save();
     }
@@ -82,7 +86,6 @@ export async function PATCH(
       );
     }
 
-    // ✅ Increment prompt's copy count
     const updatedPrompt = await Prompt.findByIdAndUpdate(
       params.id,
       { $inc: { copyCount: 1 } },
@@ -113,8 +116,7 @@ export async function GET(req: Request) {
   try {
     await connectToDatabase();
 
-    // Replace 'any' with 'unknown' for data type
-    const data: unknown = await getPromptById(id);
+    const data = await getPromptById(id);
 
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
@@ -134,13 +136,12 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body: PromptUpdateBody = await req.json();
 
   try {
     await connectToDatabase();
 
-    // Replace 'any' with 'unknown' for data type
-    const updatedPrompt: unknown = await updatePrompt(id, body);
+    const updatedPrompt = await updatePrompt(id, body);
 
     return NextResponse.json({ updatedPrompt }, { status: 200 });
   } catch (error) {
@@ -158,6 +159,6 @@ async function getPromptById(id: string) {
 }
 
 // Helper function to update a prompt by ID
-async function updatePrompt(id: string, body: any) {
+async function updatePrompt(id: string, body: PromptUpdateBody) {
   return await Prompt.findByIdAndUpdate(id, body, { new: true });
 }

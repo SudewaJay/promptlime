@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Heart, Share2, Clipboard, Check, X } from "lucide-react";
+import Image from "next/image";
 
 interface PromptCardProps {
   _id?: string;
@@ -13,8 +14,6 @@ interface PromptCardProps {
   prompt: string;
   image?: string;
   likes?: number;
-  copyCount?: number;
-  views?: number;
   onClick?: () => void;
 }
 
@@ -25,8 +24,6 @@ export default function PromptCard({
   prompt,
   image,
   likes = 0,
-  copyCount = 0,
-  views = 0,
   onClick,
 }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
@@ -141,10 +138,11 @@ export default function PromptCard({
                   onClick={() => signIn("google")}
                   className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-4 py-2.5 rounded-full hover:bg-gray-100 w-full transition"
                 >
-                  <img
+                  <Image
                     src="https://www.svgrepo.com/show/475656/google-color.svg"
                     alt="Google"
-                    className="w-5 h-5"
+                    width={20}
+                    height={20}
                   />
                   Login with Google
                 </button>
@@ -164,22 +162,25 @@ export default function PromptCard({
       >
         {image && (
           <div className="relative group w-full md:w-40 md:h-40 aspect-square md:aspect-auto rounded-xl overflow-hidden">
-            <img
+            <Image
               src={image}
               alt={title}
-              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 40vw"
             />
           </div>
         )}
 
         <div className="flex-1">
-          <div className="text-sm text-lime-400 font-medium mb-1">{category}</div>
+          <div className="text-sm text-lime-400 font-medium mb-1">
+            {category}
+          </div>
           <h2 className="text-xl font-semibold text-white mb-2">{title}</h2>
           <p className="text-gray-300 text-sm mb-4">
             {prompt.length > 95 ? `${prompt.slice(0, 90)}...` : prompt}
           </p>
 
-          {/* 🔘 Action Buttons (Responsive) */}
           <div className="flex flex-wrap items-center justify-between gap-2 mt-3 md:flex-row">
             {/* ❤️ Like */}
             <button

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function AnimatedCTA() {
   return (
@@ -20,12 +21,11 @@ export default function AnimatedCTA() {
         <p className="text-white/70 mb-8 text-base">
           Browse through all available prompts to find your inspiration.
         </p>
-        <a
-          href="/"
-          className="inline-block px-6 py-3 rounded-full bg-lime-400 hover:bg-lime-300 text-black text-sm font-semibold transition shadow-md hover:shadow-lg"
-        >
-          View All Prompts →
-        </a>
+        <Link href="/">
+          <a className="inline-block px-6 py-3 rounded-full bg-lime-400 hover:bg-lime-300 text-black text-sm font-semibold transition shadow-md hover:shadow-lg">
+            View All Prompts →
+          </a>
+        </Link>
       </div>
     </section>
   );

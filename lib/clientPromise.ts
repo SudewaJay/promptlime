@@ -3,13 +3,10 @@ import { MongoClient } from "mongodb";
 const uri = process.env.MONGODB_URI!;
 const options = {};
 
-// Global is used in development to preserve the value across module reloads caused by HMR (Hot Module Replacement)
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-// 👇 Properly type globalThis to avoid TS errors in dev
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 

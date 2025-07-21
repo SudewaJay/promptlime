@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AboutHero from "@/components/AboutHero";
 import { WobbleCard } from "@/components/ui/wobble-card";
-import { AnimatedTooltipPreview } from "@/components/AnimatedTooltipPreview";
+
 
 export default function AboutPage() {
   return (
@@ -20,7 +20,7 @@ export default function AboutPage() {
       </section>
 
       {/* ✨ Animated Team Tooltip */}
-      <AnimatedTooltipPreview />
+     
 
       {/* 💫 Wobble Cards Section */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-8">

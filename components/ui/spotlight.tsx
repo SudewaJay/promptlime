@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 interface SpotlightProps extends React.HTMLAttributes<HTMLDivElement> {
