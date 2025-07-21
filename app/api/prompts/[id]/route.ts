@@ -101,3 +101,63 @@ export async function PATCH(
     );
   }
 }
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  }
+
+  try {
+    await connectToDatabase();
+
+    // Replace 'any' with 'unknown' for data type
+    const data: unknown = await getPromptById(id);
+
+    return NextResponse.json({ data }, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error in GET /prompts:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  }
+
+  const body = await req.json();
+
+  try {
+    await connectToDatabase();
+
+    // Replace 'any' with 'unknown' for data type
+    const updatedPrompt: unknown = await updatePrompt(id, body);
+
+    return NextResponse.json({ updatedPrompt }, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error in PUT /prompts:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Helper function to get a prompt by ID
+async function getPromptById(id: string) {
+  return await Prompt.findById(id);
+}
+
+// Helper function to update a prompt by ID
+async function updatePrompt(id: string, body: any) {
+  return await Prompt.findByIdAndUpdate(id, body, { new: true });
+}

@@ -3,12 +3,13 @@ import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getAllPrompts, createPrompt } from "@/lib/promptService";
 
 // GET: Fetch all prompts
 export async function GET() {
   try {
     await connectToDatabase(); // ✅ Connect Mongoose
-    const prompts = await Prompt.find({}).sort({ createdAt: -1 });
+    const prompts: unknown = await getAllPrompts();
     return NextResponse.json(prompts, { status: 200 });
   } catch (err: any) {
     console.error("❌ GET /api/prompts error:", err.message);
@@ -20,20 +21,14 @@ export async function GET() {
 }
 
 // POST: Add a new prompt
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     await connectToDatabase(); // ✅ Connect Mongoose
     const body = await req.json();
 
-    const prompt = await Prompt.create({
-      title: body.title,
-      category: body.category,
-      prompt: body.prompt,
-      image: body.image || "",
-      createdAt: new Date(),
-    });
+    const newPrompt: unknown = await createPrompt(body);
 
-    return NextResponse.json({ success: true, prompt }, { status: 201 });
+    return NextResponse.json({ success: true, prompt: newPrompt }, { status: 201 });
   } catch (err: any) {
     console.error("❌ POST /api/prompts error:", err.message);
     return NextResponse.json(
