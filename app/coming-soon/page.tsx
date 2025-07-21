@@ -2,8 +2,6 @@
 
 import React from "react";
 import { SparklesCore } from "@/components/ui/sparkles";
-import Link from "next/link";
-import { HoverBorderGradient } from "@/components/ui/HoverBorderGradient";
 
 export default function ComingSoonPage() {
   return (
@@ -38,18 +36,18 @@ export default function ComingSoonPage() {
         {/* Radial Mask */}
         <div className="absolute inset-0 w-full h-full bg-black [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]"></div>
       </div>
-              <div className="text-center py-4">
-                <a
-                  href="https://uniixstudio.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center justify-center gap-1 text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-orange-500 to-yellow-500 animate-text text-sm font-medium hover:underline"
-                >
-                  Product of Uniix Studio
-                </a>
-              </div>
 
+      {/* 👇 Footer Info */}
+      <div className="text-center py-4">
+        <a
+          href="https://uniixstudio.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center justify-center gap-1 text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-orange-500 to-yellow-500 animate-text text-sm font-medium hover:underline"
+        >
+          Product of Uniix Studio
+        </a>
+      </div>
     </div>
-    
   );
 }
