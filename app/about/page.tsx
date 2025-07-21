@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Header from "@/components/Header";
@@ -39,7 +39,7 @@ export default function AboutPage() {
             What Makes Us Different
           </h3>
           <p className="text-white/80">
-            Our team is built on passion and precision. We don’t just design —
+            Our team is built on passion and precision. We do not just design —
             we solve problems with style.
           </p>
         </WobbleCard>
