@@ -1,12 +1,14 @@
+import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
 import User from "@/models/User";
-import { getServerSession } from "next-auth";
-import authOptions from "@/lib/authOptions";
+import { getServerSession } from "next-auth/next"; // correct import for App Router
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import type { Session } from "next-auth";  // import Session type
+import type { User as NextAuthUser } from "next-auth"; // import NextAuth User type
 
-// Define the shape of the update body for Prompt
+// Define update body shape
 interface PromptUpdateBody {
   title?: string;
   category?: string;
@@ -17,34 +19,75 @@ interface PromptUpdateBody {
   views?: number;
 }
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!params?.id) {
+    return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  }
 
   try {
     await connectToDatabase();
+    const prompt = await Prompt.findById(params.id);
 
-    const session = await getServerSession(authOptions);
+    if (!prompt) {
+      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: prompt }, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error in GET /prompts/:id:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!params?.id) {
+    return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  }
+
+  try {
+    await connectToDatabase();
+    const body: PromptUpdateBody = await req.json();
+
+    const updatedPrompt = await Prompt.findByIdAndUpdate(params.id, body, { new: true });
+
+    if (!updatedPrompt) {
+      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ updatedPrompt }, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error in PUT /prompts/:id:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await connectToDatabase();
+
+    // Explicitly type session with NextAuth Session or null
+    const session: Session | null = await getServerSession(authOptions);
+
     const cookieStore = await cookies();
-
     const { action } = await req.json();
 
     if (action !== "incrementCopyCount") {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
-    const headers = new Headers();
     let allowCopy = true;
+    const response = NextResponse.next();
 
-    // Guest copy limit logic
     if (!session?.user) {
       const copiedOnce = cookieStore.get("copied_once");
       if (copiedOnce?.value === "true") {
         allowCopy = false;
       } else {
-        headers.append(
-          "Set-Cookie",
-          `copied_once=true; Path=/; Max-Age=86400; SameSite=Lax`
-        );
+        response.cookies.set("copied_once", "true", {
+          maxAge: 86400,
+          path: "/",
+          sameSite: "lax",
+        });
       }
     }
 
@@ -91,60 +134,9 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
       { new: true }
     );
 
-    return new NextResponse(
-      JSON.stringify({ success: true, prompt: updatedPrompt }),
-      { status: 200, headers }
-    );
+    return NextResponse.json({ success: true, prompt: updatedPrompt }, { status: 200 });
   } catch (error) {
     console.error("❌ Error in PATCH /prompts/:id:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
-
-  if (!params?.id) {
-    return NextResponse.json({ error: "ID is required" }, { status: 400 });
-  }
-
-  try {
-    await connectToDatabase();
-    const data = await Prompt.findById(params.id);
-
-    if (!data) {
-      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ data }, { status: 200 });
-  } catch (error) {
-    console.error("❌ Error in GET /prompts/:id:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
-
-  if (!params?.id) {
-    return NextResponse.json({ error: "ID is required" }, { status: 400 });
-  }
-
-  const body: PromptUpdateBody = await req.json();
-
-  try {
-    await connectToDatabase();
-    const updatedPrompt = await Prompt.findByIdAndUpdate(params.id, body, {
-      new: true,
-    });
-
-    if (!updatedPrompt) {
-      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ updatedPrompt }, { status: 200 });
-  } catch (error) {
-    console.error("❌ Error in PUT /prompts/:id:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
