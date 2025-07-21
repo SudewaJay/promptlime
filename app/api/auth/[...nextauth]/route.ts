@@ -1,10 +1,12 @@
+// app/api/auth/[...nextauth]/route.ts
+
 import NextAuth, { type NextAuthOptions, type Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/clientPromise";
 import { AdapterUser } from "next-auth/adapters";
 
-// ✅ Extend Session type
+// Extend Session type to include custom fields
 declare module "next-auth" {
   interface Session {
     user: {
@@ -18,7 +20,7 @@ declare module "next-auth" {
   }
 }
 
-// ✅ Extend AdapterUser type
+// Extend AdapterUser type for your custom user fields
 interface ExtendedAdapterUser extends AdapterUser {
   isPro?: boolean;
   createdAt?: Date | string;
@@ -48,7 +50,8 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
+// Create NextAuth handler with authOptions
 const handler = NextAuth(authOptions);
 
-// ✅ These exports are required for Next.js route handlers
+// Export handler for GET and POST requests as required by Next.js App Router
 export { handler as GET, handler as POST };

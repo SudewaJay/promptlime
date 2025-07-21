@@ -1,3 +1,4 @@
+// lib/authOptions.ts
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/clientPromise";
@@ -13,7 +14,7 @@ interface ExtendedToken extends JWT {
 
 interface ExtendedSession extends Session {
   user: Session["user"] & {
-    id: string;         // now id is always string
+    id: string;
     isPro: boolean;
     copiesLeft?: number;
   };
@@ -62,7 +63,6 @@ export const authOptions: AuthOptions = {
 
       if (!extSession.user || !extToken) return extSession;
 
-      // FIX: ensure id is always string
       extSession.user.id = extToken.sub ?? "";
       extSession.user.isPro = extToken.isPro || false;
 
