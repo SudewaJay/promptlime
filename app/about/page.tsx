@@ -60,7 +60,7 @@ export default function AboutPage() {
           <h1 className="text-4xl font-bold mb-4">Our Story</h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto">
             We believe in crafting the future of digital creativity, one pixel
-            at a time. Here's how we got here.
+            at a time. Here&apos;s how we got here.
           </p>
         </motion.section>
 

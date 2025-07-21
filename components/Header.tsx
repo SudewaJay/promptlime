@@ -8,20 +8,30 @@ import { useSearch } from "@/context/SearchContext";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface ExtendedUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  isPro?: boolean;
+  createdAt?: Date | string;
+}
+
 export default function Header() {
   const { searchTerm, setSearchTerm } = useSearch();
   const [showSearch, setShowSearch] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [copyCount, setCopyCount] = useState<number>(0);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const { data: session } = useSession();
-  const isPro = (session?.user as any)?.isPro;
+  const user = session?.user as ExtendedUser | undefined;
+  const isPro = user?.isPro;
 
-  // Fetch user's copied prompts count
+  // 🔁 Fetch user's copied prompts count
   useEffect(() => {
     const fetchCopyCount = async () => {
-      if (!session?.user || isPro) return;
+      if (!user || isPro) return;
       try {
         const res = await fetch("/api/user/copy-count");
         const data = await res.json();
@@ -31,15 +41,12 @@ export default function Header() {
       }
     };
     fetchCopyCount();
-  }, [session, isPro]);
+  }, [user, isPro]);
 
-  // Close dropdown when clicking outside
+  // 🛑 Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !(dropdownRef.current as any).contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
@@ -63,7 +70,7 @@ export default function Header() {
 
         {/* 🔧 Right Side */}
         <div className="flex items-center gap-5 text-gray-300 relative z-[70]">
-          {/* 🔍 Search Input */}
+          {/* 🔍 Search */}
           {showSearch ? (
             <div className="relative z-50 flex items-center gap-2 w-[240px]">
               <input
@@ -91,26 +98,26 @@ export default function Header() {
             />
           )}
 
-          {/* 🔔 Notifications */}
+          {/* 🔔 Notification */}
           <Bell
             size={20}
             className="hover:text-lime-400 cursor-pointer transition hidden md:flex"
           />
 
-          {/* 📊 Copied Prompts Count */}
-          {session?.user && !isPro && (
+          {/* 📊 Copy Count */}
+          {user && !isPro && (
             <span className="text-xs text-white/70 bg-white/10 px-3 py-1 rounded-full border border-white/10 hidden sm:block">
               {copyCount} / 5 copied
             </span>
           )}
-          {session?.user && isPro && (
+          {user && isPro && (
             <span className="text-xs text-white/70 bg-white/10 px-3 py-1 rounded-full border border-white/10 hidden sm:block">
               ∞ Unlimited
             </span>
           )}
 
           {/* 👤 Auth Section */}
-          {!session ? (
+          {!user ? (
             <button
               onClick={() => signIn("google")}
               className="flex items-center gap-2 text-sm text-white bg-white/10 px-4 py-1.5 rounded-full hover:bg-white/20 transition"
@@ -133,7 +140,7 @@ export default function Header() {
                 }`}
               >
                 <Image
-                  src={session.user.image || "/default-avatar.png"}
+                  src={user.image || "/default-avatar.png"}
                   alt="User"
                   width={28}
                   height={28}
@@ -141,7 +148,7 @@ export default function Header() {
                 />
               </button>
 
-              {/* Dropdown */}
+              {/* 🔽 Dropdown */}
               <AnimatePresence>
                 {showDropdown && (
                   <motion.div
@@ -152,8 +159,8 @@ export default function Header() {
                     className="absolute right-0 mt-3 w-56 bg-neutral-900 text-white rounded-xl shadow-xl z-50 py-2 border border-white/10"
                   >
                     <div className="px-4 py-3 border-b border-white/10">
-                      <p className="text-sm font-medium truncate">{session.user?.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{session.user?.email}</p>
+                      <p className="text-sm font-medium truncate">{user.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
                     </div>
                     <Link
                       href="/profile"
