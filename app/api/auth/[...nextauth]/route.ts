@@ -1,12 +1,13 @@
-// app/api/auth/[...nextauth]/route.ts
-
-import NextAuth, { type NextAuthOptions, type Session } from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/clientPromise";
+import User from "@/models/User"; // Ensure this is correct
+import connectToDatabase from "@/lib/mongodb";
+import { NextAuthOptions, Session } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
 
-// Extend the session user type
+// Extend session type to include custom fields
 declare module "next-auth" {
   interface Session {
     user: {
@@ -15,19 +16,21 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       isPro?: boolean;
-      createdAt?: Date | string;
+      createdAt?: string | Date;
     };
   }
 }
 
-// Extend AdapterUser to include custom fields
 interface ExtendedAdapterUser extends AdapterUser {
   isPro?: boolean;
   createdAt?: Date | string;
 }
 
+// ✅ Define your auth options
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: "promptlime",
+  }),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -35,9 +38,13 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "database",
+  },
   callbacks: {
     async session({ session, user }: { session: Session; user: ExtendedAdapterUser }) {
       if (session.user) {
+        // Add custom fields to session.user
         session.user.id = user.id;
         session.user.isPro = user.isPro ?? false;
         session.user.createdAt = user.createdAt ?? undefined;
@@ -47,7 +54,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
+// ✅ Export route handlers for Next.js App Router
 const handler = NextAuth(authOptions);
-
-// Export handler for Next.js App Router route handlers
 export { handler as GET, handler as POST };

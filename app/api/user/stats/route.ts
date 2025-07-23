@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
-import authOptions from "@/lib/authOptions";
+import { authOptions } from "@/lib/authOptions";
 
 // Optional: If you have a likes model
 import Like from "@/models/Like"; // ➕ (create this if you haven't)

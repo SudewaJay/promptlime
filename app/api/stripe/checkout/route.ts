@@ -1,7 +1,7 @@
 // app/api/stripe/checkout/route.ts
 import { stripe } from "@/lib/stripe";
 import { getServerSession } from "next-auth";
-import authOptions from "@/lib/authOptions";
+import { authOptions } from "@/lib/authOptions";
 import { NextResponse } from "next/server";
 
 export async function POST() {

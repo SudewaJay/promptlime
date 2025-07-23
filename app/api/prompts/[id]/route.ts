@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
 import User from "@/models/User";
-import { getServerSession } from "next-auth/next"; // correct import for App Router
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth/next";
 import { cookies } from "next/headers";
-import type { Session } from "next-auth";  // import Session type
-import type { User as NextAuthUser } from "next-auth"; // import NextAuth User type
+import type { Session } from "next-auth";
+import { authOptions } from "@/lib/authOptions"; // ✅ Correct named import
 
 // Define update body shape
 interface PromptUpdateBody {
@@ -19,6 +18,9 @@ interface PromptUpdateBody {
   views?: number;
 }
 
+// ==========================
+// GET /api/prompts/:id
+// ==========================
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   if (!params?.id) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
@@ -39,6 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
+// ==========================
+// PUT /api/prompts/:id
+// ==========================
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   if (!params?.id) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
@@ -61,13 +66,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
+// ==========================
+// PATCH /api/prompts/:id (increment copy count logic)
+// ==========================
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await connectToDatabase();
 
-    // Explicitly type session with NextAuth Session or null
     const session: Session | null = await getServerSession(authOptions);
-
     const cookieStore = await cookies();
     const { action } = await req.json();
 
@@ -78,6 +84,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     let allowCopy = true;
     const response = NextResponse.next();
 
+    // 💡 Guest Copy Limit via Cookie
     if (!session?.user) {
       const copiedOnce = cookieStore.get("copied_once");
       if (copiedOnce?.value === "true") {
@@ -91,6 +98,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       }
     }
 
+    // 💡 Logged-in User Copy Limit
     if (session?.user?.email) {
       const user = await User.findOne({ email: session.user.email });
       if (!user) {
@@ -128,6 +136,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       );
     }
 
+    // ✅ Increment copyCount
     const updatedPrompt = await Prompt.findByIdAndUpdate(
       params.id,
       { $inc: { copyCount: 1 } },

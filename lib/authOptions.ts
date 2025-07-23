@@ -32,7 +32,7 @@ export const authOptions: AuthOptions = {
   }),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "database",
+    strategy: "database", // use "jwt" if you don't want DB sessions
   },
   pages: {
     signIn: "/signin",
@@ -51,7 +51,7 @@ export const authOptions: AuthOptions = {
           token.isPro = dbUser.isPro || false;
         }
       } catch (err) {
-        console.error("🔴 Failed to fetch user in JWT callback:", err);
+        console.error("❌ Failed to fetch user in JWT callback:", err);
       }
 
       return token as ExtendedToken;
@@ -81,12 +81,10 @@ export const authOptions: AuthOptions = {
 
         extSession.user.copiesLeft = copiesLeft;
       } catch (err) {
-        console.error("🔴 Failed to fetch user in session callback:", err);
+        console.error("❌ Failed to fetch user in session callback:", err);
       }
 
       return extSession;
     },
   },
 };
-
-export default authOptions;
