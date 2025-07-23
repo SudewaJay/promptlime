@@ -2,8 +2,6 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/clientPromise";
-import User from "@/models/User"; // Ensure this is correct
-import connectToDatabase from "@/lib/mongodb";
 import { NextAuthOptions, Session } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
 
