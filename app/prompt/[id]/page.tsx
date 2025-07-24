@@ -1,39 +1,57 @@
+import { notFound } from "next/navigation";
 import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
-import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptActions from "@/components/PromptActions";
 import AnimatedCTA from "@/components/AnimatedCTA";
 import { formatDistanceToNow } from "date-fns";
-import Image from "next/image"; // <-- import Image here
+import Image from "next/image";
 
-type Params = {
-  params: { id: string };
+// Type for the prompt data
+type PromptType = {
+  _id: string;
+  title: string;
+  prompt: string;
+  category?: string;
+  image?: string;
+  likes?: number;
+  copyCount?: number;
+  views?: number;
+  createdAt?: string | Date;
 };
 
-export default async function PromptPage({ params }: Params) {
+// Props type for dynamic route with id
+interface PromptPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function PromptPage({ params }: PromptPageProps) {
   await connectToDatabase();
 
-  type PromptType = {
-    _id: string;
-    title: string;
-    prompt: string;
-    category?: string;
-    image?: string;
-    likes?: number;
-    copyCount?: number;
-    views?: number;
-    createdAt?: string | Date;
-  };
-
-  const prompt = await Prompt.findByIdAndUpdate(
+  const result = await Prompt.findByIdAndUpdate(
     params.id,
     { $inc: { views: 1 } },
     { new: true }
-  ).lean<PromptType>();
+  ).lean();
 
-  if (!prompt) return notFound();
+  if (!result || !("title" in result) || !("prompt" in result)) {
+    return notFound();
+  }
+
+  const prompt: PromptType = {
+    _id: String(result._id),
+    title: result.title,
+    prompt: result.prompt,
+    category: result.category,
+    image: result.image,
+    likes: result.likes,
+    copyCount: result.copyCount,
+    views: result.views,
+    createdAt: result.createdAt,
+  };
 
   const shareUrl =
     `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/prompt/${prompt._id}`;
@@ -95,9 +113,7 @@ export default async function PromptPage({ params }: Params) {
         </div>
       </main>
 
-      {/* 🚀 CTA Section */}
       <AnimatedCTA />
-
       <Footer />
     </div>
   );

@@ -66,9 +66,10 @@ export default function PricingPage() {
 
           <HoverBorderGradient
             as="button"
+            type="button"
             onClick={handleStripeCheckout}
             className="text-white font-medium text-sm px-6 py-2 w-full"
-            {...(loading ? { disabled: true } : {})}
+            disabled={loading}
           >
             {loading ? "Redirecting..." : "Upgrade Now"}
           </HoverBorderGradient>

@@ -4,10 +4,9 @@ import Prompt from "@/models/Prompt";
 import User from "@/models/User";
 import { getServerSession } from "next-auth/next";
 import { cookies } from "next/headers";
+import { authOptions } from "@/lib/authOptions";
 import type { Session } from "next-auth";
-import { authOptions } from "@/lib/authOptions"; // ✅ Correct named import
 
-// Define update body shape
 interface PromptUpdateBody {
   title?: string;
   category?: string;
@@ -21,14 +20,15 @@ interface PromptUpdateBody {
 // ==========================
 // GET /api/prompts/:id
 // ==========================
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!params?.id) {
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.pathname.split("/").pop(); // Get ID from URL
+  if (!id) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
   }
 
   try {
     await connectToDatabase();
-    const prompt = await Prompt.findById(params.id);
+    const prompt = await Prompt.findById(id);
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
@@ -44,8 +44,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // ==========================
 // PUT /api/prompts/:id
 // ==========================
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!params?.id) {
+export async function PUT(req: NextRequest) {
+  const id = req.nextUrl.pathname.split("/").pop();
+  if (!id) {
     return NextResponse.json({ error: "ID is required" }, { status: 400 });
   }
 
@@ -53,7 +54,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     await connectToDatabase();
     const body: PromptUpdateBody = await req.json();
 
-    const updatedPrompt = await Prompt.findByIdAndUpdate(params.id, body, { new: true });
+    const updatedPrompt = await Prompt.findByIdAndUpdate(id, body, { new: true });
 
     if (!updatedPrompt) {
       return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
@@ -67,9 +68,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // ==========================
-// PATCH /api/prompts/:id (increment copy count logic)
+// PATCH /api/prompts/:id
 // ==========================
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest) {
+  const id = req.nextUrl.pathname.split("/").pop();
+  if (!id) {
+    return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  }
+
   try {
     await connectToDatabase();
 
@@ -84,7 +90,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     let allowCopy = true;
     const response = NextResponse.next();
 
-    // 💡 Guest Copy Limit via Cookie
+    // Guest copy limit via cookie
     if (!session?.user) {
       const copiedOnce = cookieStore.get("copied_once");
       if (copiedOnce?.value === "true") {
@@ -98,11 +104,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       }
     }
 
-    // 💡 Logged-in User Copy Limit
+    // Logged-in user limit
     if (session?.user?.email) {
       const user = await User.findOne({ email: session.user.email });
       if (!user) {
-        return NextResponse.json({ error: "User not found." }, { status: 404 });
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
       const now = new Date();
@@ -116,9 +122,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
       if (!user.isPro && user.copyCount >= 5) {
         return NextResponse.json(
-          {
-            error: "Monthly limit reached. Upgrade to Pro for unlimited access.",
-          },
+          { error: "Monthly limit reached. Upgrade to Pro for unlimited access." },
           { status: 403 }
         );
       }
@@ -129,16 +133,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     if (!allowCopy) {
       return NextResponse.json(
-        {
-          error: "Guests can only copy one prompt. Please login to continue.",
-        },
+        { error: "Guests can only copy one prompt. Please login to continue." },
         { status: 403 }
       );
     }
 
-    // ✅ Increment copyCount
     const updatedPrompt = await Prompt.findByIdAndUpdate(
-      params.id,
+      id,
       { $inc: { copyCount: 1 } },
       { new: true }
     );

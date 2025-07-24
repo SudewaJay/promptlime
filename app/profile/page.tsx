@@ -57,7 +57,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle unauthenticated
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
@@ -127,13 +126,14 @@ export default function ProfilePage() {
               Joined {joinedDate.toDateString()}
             </p>
 
-            {/* 👉 Stripe CTA */}
+            {/* 👉 Stripe CTA (fixed) */}
             {!isPro && (
-              <button onClick={handleStripeCheckout} className="mt-4 block">
-                <HoverBorderGradient className="text-white font-medium text-sm px-6 py-2">
-                  {loadingStripe ? "Redirecting..." : "Upgrade to Pro"}
-                </HoverBorderGradient>
-              </button>
+              <HoverBorderGradient
+                onClick={handleStripeCheckout}
+                className="text-white font-medium text-sm px-6 py-2 mt-4 block text-center cursor-pointer"
+              >
+                {loadingStripe ? "Redirecting..." : "Upgrade to Pro"}
+              </HoverBorderGradient>
             )}
           </div>
         </section>
