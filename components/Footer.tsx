@@ -103,22 +103,22 @@ export default function Footer() {
         <Image
           src="/payment/stripe.svg"
           alt="Stripe payment badge"
-          width={80}
-          height={24}
+          width={40}
+          height={16}
           className="opacity-60 hover:opacity-100 transition"
         />
         <Image
           src="/payment/visa.svg"
           alt="Visa payment badge"
-          width={80}
-          height={24}
+          width={40}
+          height={16}
           className="opacity-60 hover:opacity-100 transition"
         />
         <Image
           src="/payment/mastercard.svg"
           alt="MasterCard payment badge"
-          width={80}
-          height={24}
+          width={40}
+          height={16}
           className="opacity-60 hover:opacity-100 transition"
         />
       </div>
