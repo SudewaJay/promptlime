@@ -15,7 +15,7 @@ export const metadata = {
     siteName: "Promptlime",
     images: [
       {
-        url: "https://www.promptlime.space/og-image.png", // 👈 Replace with your actual image
+        url: "public/images/promptlime site feature image.jpg", // 👈 Replace with your actual image
         width: 1200,
         height: 630,
         alt: "Promptlime – Best ChatGPT Prompts",
@@ -28,7 +28,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Promptlime – Best ChatGPT Prompts",
     description: "Stop guessing. Start generating. Discover the best prompts for ChatGPT.",
-    images: ["https://www.promptlime.space/og-image.png"], // Same image for Twitter
+    images: ["public/images/promptlime site feature image.jpg"], // Same image for Twitter
   },
 };
 
