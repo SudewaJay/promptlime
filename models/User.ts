@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, models } from "mongoose";
 
-// Extend TypeScript interface
+// ✅ Extend TypeScript interface
 export interface IUser extends Document {
   email: string;
   name?: string;
@@ -13,18 +13,23 @@ export interface IUser extends Document {
   updatedAt?: Date;
 }
 
-// Define schema
+// ✅ Define User schema
 const UserSchema = new Schema<IUser>(
   {
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
+      lowercase: true,
+      trim: true,
     },
-    name: String,
+    name: {
+      type: String,
+      trim: true,
+    },
     image: String,
 
-    // ✅ Pro user and usage tracking
+    // 👉 Track subscription and usage
     isPro: {
       type: Boolean,
       default: false,
@@ -38,18 +43,18 @@ const UserSchema = new Schema<IUser>(
       default: () => new Date(),
     },
 
-    // ✅ New: Saved categories
+    // 👉 User's saved category slugs or IDs
     savedCategories: {
       type: [String],
       default: [],
     },
   },
   {
-    timestamps: true, // ✅ createdAt & updatedAt will be added automatically
+    timestamps: true, // ⏱ Adds createdAt and updatedAt
   }
 );
 
-// Prevent model overwrite in development
+// ✅ Prevent model overwrite in dev
 const User = models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;

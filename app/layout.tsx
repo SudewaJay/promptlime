@@ -2,6 +2,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import SessionWrapper from "@/components/SessionWrapper";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,7 +16,7 @@ export const metadata = {
     siteName: "Promptlime",
     images: [
       {
-        url: "public/images/promptlime site feature image.jpg", // 👈 Replace with your actual image
+        url: "/images/promptlime site feature image.jpg", // 👈 Replace with your actual image
         width: 1200,
         height: 630,
         alt: "Promptlime – Best ChatGPT Prompts",
@@ -28,7 +29,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Promptlime – Best ChatGPT Prompts",
     description: "Stop guessing. Start generating. Discover the best prompts for ChatGPT.",
-    images: ["public/images/promptlime site feature image.jpg"], // Same image for Twitter
+    images: ["/images/promptlime site feature image.jpg"], // Same image for Twitter
   },
 };
 
