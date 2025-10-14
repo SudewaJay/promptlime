@@ -1,43 +1,57 @@
-// app/admin/categories/[id]/edit/page.tsx
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { CategoryType } from "@/types";
-import toast from "react-hot-toast";
 
-// your component code continues...
+interface Prompt {
+  id: string;
+  name: string;
+}
 
-export default function EditCategoryPage() {
+export default function EditPromptPage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState<string>("");
 
   useEffect(() => {
-    const fetchCategory = async () => {
-      const res = await fetch(`/api/categories/${id}`);
-      const data = await res.json();
-      setName(data.name || "");
+    const fetchPrompt = async (): Promise<void> => {
+      try {
+        const res = await fetch(`/api/prompts/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch prompt");
+
+        const data: Prompt = await res.json();
+        setName(data.name || "");
+      } catch (error) {
+        console.error("Error fetching prompt:", error);
+      }
     };
-    fetchCategory();
+
+    if (id) fetchPrompt();
   }, [id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    await fetch(`/api/categories/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
-    router.push("/admin/categories");
+
+    try {
+      const res = await fetch(`/api/prompts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update prompt");
+
+      router.push("/admin/prompts");
+    } catch (error) {
+      console.error("Error updating prompt:", error);
+    }
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Edit Category</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit Prompt</h1>
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         <input
           type="text"
