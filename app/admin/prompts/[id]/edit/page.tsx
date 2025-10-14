@@ -68,7 +68,7 @@ export default function EditPromptPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Edit Prompt</h1>
+      <h1 className="text-2xl font-bold mb-4">Ediit Prompt</h1>
       <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
         <input
           type="text"
