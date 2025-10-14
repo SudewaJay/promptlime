@@ -1,9 +1,13 @@
 // app/admin/categories/[id]/edit/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { CategoryType } from "@/types";
+import toast from "react-hot-toast";
+
+// your component code continues...
 
 export default function EditCategoryPage() {
   const router = useRouter();

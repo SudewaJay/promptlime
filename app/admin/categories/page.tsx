@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CategoryType } from "@/types"; // define CategoryType separately if not yet
+import { CategoryType } from "@/types";
 import toast from "react-hot-toast";
+
+// your component code continues...
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryType[]>([]);
