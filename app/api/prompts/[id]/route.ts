@@ -88,7 +88,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     let allowCopy = true;
-    const response = NextResponse.next();
+    let setCookie = false;
 
     // Guest copy limit via cookie
     if (!session?.user) {
@@ -96,20 +96,20 @@ export async function PATCH(req: NextRequest) {
       if (copiedOnce?.value === "true") {
         allowCopy = false;
       } else {
-        response.cookies.set("copied_once", "true", {
-          maxAge: 86400,
-          path: "/",
-          sameSite: "lax",
-        });
+        setCookie = true;
       }
     }
 
-    // Logged-in user limit
+    // Logged-in user limit - UNLIMITED
     if (session?.user?.email) {
       const user = await User.findOne({ email: session.user.email });
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
+
+      // We still track the copy count for statistics, but no longer limit it.
+      // (Optional: You can keep the monthly reset logic if you want to track monthly usage, 
+      // but strictly speaking it's not needed for "unlimited". I'll keep it for clean data.)
 
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -117,15 +117,9 @@ export async function PATCH(req: NextRequest) {
       if (!user.lastReset || user.lastReset < startOfMonth) {
         user.copyCount = 0;
         user.lastReset = now;
-        await user.save();
       }
 
-      if (!user.isPro && user.copyCount >= 5) {
-        return NextResponse.json(
-          { error: "Monthly limit reached. Upgrade to Pro for unlimited access." },
-          { status: 403 }
-        );
-      }
+      // REMOVED: 5 copy limit check
 
       user.copyCount += 1;
       await user.save();
@@ -144,7 +138,18 @@ export async function PATCH(req: NextRequest) {
       { new: true }
     );
 
-    return NextResponse.json({ success: true, prompt: updatedPrompt }, { status: 200 });
+    const response = NextResponse.json({ success: true, prompt: updatedPrompt }, { status: 200 });
+
+    // Set cookie on the ACTUAL response object we are returning
+    if (setCookie) {
+      response.cookies.set("copied_once", "true", {
+        maxAge: 86400, // 24 hours
+        path: "/",
+        sameSite: "lax",
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("❌ Error in PATCH /prompts/:id:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
