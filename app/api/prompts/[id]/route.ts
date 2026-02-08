@@ -189,3 +189,34 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+// ==========================
+// DELETE /api/prompts/:id
+// ==========================
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.pathname.split("/").pop();
+  if (!id) {
+    return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  }
+
+  try {
+    await connectToDatabase();
+
+    // Optional: Check if user is admin/owner here if not handled by middleware
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const deletedPrompt = await Prompt.findByIdAndDelete(id);
+
+    if (!deletedPrompt) {
+      return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: "Prompt deleted" }, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error in DELETE /prompts/:id:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
