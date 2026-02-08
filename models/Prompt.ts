@@ -4,11 +4,13 @@ import mongoose, { Schema, Document, models, model } from "mongoose";
 export interface IPrompt extends Document {
   title: string;
   category: string;
+  tool: string;               // ✅ Added: Tool name (e.g. "ChatGPT")
+  tags: string[];             // ✅ Added: Tags array
   prompt: string;
   image?: string;
-  copyCount: number;          // ✅ Added for tracking copies
-  likes: number;              // ✅ Added to match schema
-  views: number;              // ✅ Added to match schema
+  copyCount: number;
+  likes: number;
+  views: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,15 +20,17 @@ const PromptSchema = new Schema<IPrompt>(
   {
     title: { type: String, required: true },
     category: { type: String, required: true },
+    tool: { type: String, required: true, default: "ChatGPT" }, // ✅ Default for migration
+    tags: { type: [String], default: [], index: true },         // ✅ Indexed for search
     prompt: { type: String, required: true },
     image: { type: String },
-    copyCount: { type: Number, default: 0 }, // ✅ Default to 0
+    copyCount: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
   },
   {
-    timestamps: true,               // ✅ Auto manage createdAt/updatedAt
-    collection: "prompts",          // ✅ Explicit collection name
+    timestamps: true,
+    collection: "prompts",
   }
 );
 

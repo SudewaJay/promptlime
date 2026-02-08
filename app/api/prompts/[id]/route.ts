@@ -10,6 +10,8 @@ import type { Session } from "next-auth";
 interface PromptUpdateBody {
   title?: string;
   category?: string;
+  tool?: string;
+  tags?: string[];
   prompt?: string;
   image?: string;
   likes?: number;

@@ -2,11 +2,29 @@ import connectToDatabase from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { getAllPrompts, createPrompt } from "@/lib/promptService";
 
-// GET: Fetch all prompts
-export async function GET() {
+// GET: Fetch all prompts with filtering and sorting
+export async function GET(req: Request) {
   try {
     await connectToDatabase();
-    const prompts = await getAllPrompts();
+
+    const { searchParams } = new URL(req.url);
+    const tool = searchParams.get("tool");
+    const category = searchParams.get("category");
+    const tag = searchParams.get("tag");
+    const sort = searchParams.get("sort"); // 'trending' or 'date' (default)
+
+    const query: any = {};
+    if (tool && tool !== "All") query.tool = tool;
+    if (category) query.category = category;
+    if (tag) query.tags = tag;
+
+    let sortOption: any = { createdAt: -1 }; // Default: Newest first
+    if (sort === "trending") {
+      sortOption = { views: -1, likes: -1, copyCount: -1 };
+    }
+
+    const prompts = await getAllPrompts(query, sortOption);
+
     return NextResponse.json(prompts, { status: 200 });
   } catch (err) {
     const error = err instanceof Error ? err.message : "Unknown error";

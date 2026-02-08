@@ -10,6 +10,7 @@ import Image from "next/image";
 interface PromptCardProps {
   _id?: string;
   category: string;
+  tool?: string;
   title: string;
   prompt: string;
   image?: string;
@@ -20,6 +21,7 @@ interface PromptCardProps {
 export default function PromptCard({
   _id,
   category,
+  tool,
   title,
   prompt,
   image,
@@ -247,7 +249,7 @@ export default function PromptCard({
 
         <div className="flex-1">
           <div className="text-sm text-lime-400 font-medium mb-1">
-            {category}
+            {tool || "ChatGPT"}
           </div>
           <h2 className="text-xl font-semibold text-white mb-2">{title}</h2>
           <p className="text-gray-300 text-sm mb-4">

@@ -2,6 +2,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import SessionWrapper from "@/components/SessionWrapper";
+import { SearchProvider } from "@/context/SearchContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,8 +49,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-[#0f0f0f] text-white`}>
         <SessionWrapper>
-          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-          {children}
+          <SearchProvider>
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            {children}
+          </SearchProvider>
         </SessionWrapper>
       </body>
     </html>

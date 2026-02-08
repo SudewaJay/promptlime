@@ -9,6 +9,8 @@ type Prompt = {
   _id: string;
   title: string;
   category: string;
+  tool?: string;
+  tags?: string[];
   prompt: string;
   createdAt: string;
   views: number;
@@ -97,7 +99,7 @@ export default function AdminPromptsPage() {
             <thead>
               <tr className="bg-white/5 text-xs uppercase text-white/50 tracking-wider">
                 <th className="p-4 font-semibold">Prompt</th>
-                <th className="p-4 font-semibold">Category</th>
+                <th className="p-4 font-semibold">Tool / Category</th>
                 <th className="p-4 font-semibold">Stats</th>
                 <th className="p-4 font-semibold">Created</th>
                 <th className="p-4 font-semibold text-right">Actions</th>
@@ -114,9 +116,18 @@ export default function AdminPromptsPage() {
                     <td className="p-4 max-w-xs">
                       <div className="font-medium text-white truncate">{prompt.title}</div>
                       <div className="text-xs text-white/40 truncate">{prompt.prompt}</div>
+                      {/* Show tags as small badges */}
+                      {prompt.tags && prompt.tags.length > 0 && (
+                        <div className="flex gap-1 mt-1 overflow-hidden">
+                          {prompt.tags.slice(0, 3).map((tag, i) => (
+                            <span key={i} className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-white/60">{tag}</span>
+                          ))}
+                        </div>
+                      )}
                     </td>
-                    <td className="p-4 text-sm text-lime-400">
-                      {prompt.category}
+                    <td className="p-4 text-sm">
+                      <div className="text-lime-400 font-medium">{prompt.tool || "ChatGPT"}</div>
+                      <div className="text-white/40 text-xs">{prompt.category}</div>
                     </td>
                     <td className="p-4 text-xs text-white/60 space-y-1">
                       <div>👁️ {prompt.views || 0}</div>
