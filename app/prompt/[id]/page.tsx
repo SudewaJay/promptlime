@@ -21,6 +21,45 @@ type PromptType = {
   createdAt?: string | Date;
 };
 
+// ✅ Metadata Generation for Social Sharing
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  await connectToDatabase();
+  const prompt = await Prompt.findById(params.id).lean();
+
+  if (!prompt) {
+    return {
+      title: "Prompt Not Found | Promptlime",
+    };
+  }
+
+  const title = `${prompt.title} | Promptlime`;
+  const description = prompt.prompt.substring(0, 160) + "...";
+  const imageUrl = prompt.image || "/images/promptlime site feature image.jpg"; // Fallback to safe default
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: prompt.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
+}
+
 // ✅ THIS IS THE ONLY TYPING YOU NEED
 export default async function PromptPage({ params }: { params: { id: string } }) {
   await connectToDatabase();
