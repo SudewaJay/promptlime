@@ -42,20 +42,34 @@ export default function ModalPrompt({
   if (!prompt) return null;
 
   const handleCopy = async () => {
+    if (!prompt._id) return;
+
     try {
+      const res = await fetch(`/api/prompts/${prompt._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "incrementCopyCount" }),
+      });
+
+      if (res.status === 403) {
+        const data = await res.json();
+        alert(data?.error || "Limit reached.");
+        // Optional: redirect logic here if desired, consistent with PromptCard
+        return;
+      }
+
+      if (!res.ok) {
+        alert("❌ Something went wrong.");
+        return;
+      }
+
       await navigator.clipboard.writeText(prompt.prompt);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
 
-      if (prompt._id) {
-        await fetch(`/api/prompts/${prompt._id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "incrementCopyCount" }),
-        });
-      }
     } catch (err) {
       console.error("❌ Copy failed", err);
+      alert("❌ Failed to copy prompt.");
     }
   };
 
@@ -146,11 +160,10 @@ export default function ModalPrompt({
                   {/* 📋 Copy */}
                   <button
                     onClick={handleCopy}
-                    className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${
-                      copied
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
                         ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
                         : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {copied ? (
                       <span className="flex items-center gap-1">
@@ -166,11 +179,10 @@ export default function ModalPrompt({
                   {/* ❤️ Like */}
                   <button
                     onClick={handleLike}
-                    className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${
-                      isLiked
+                    className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
                         ? "bg-red-500/80 text-white"
                         : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
-                    }`}
+                      }`}
                   >
                     <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
                     {likeCount}

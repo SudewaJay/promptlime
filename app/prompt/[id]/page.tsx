@@ -80,6 +80,7 @@ export default async function PromptPage({ params }: { params: { id: string } })
               likes={prompt.likes}
               copyCount={prompt.copyCount}
               shareUrl={shareUrl}
+              prompt={prompt.prompt}
             />
 
             <div className="text-sm text-white/60 flex flex-wrap gap-4 mt-4">
