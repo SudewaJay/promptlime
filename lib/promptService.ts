@@ -2,7 +2,8 @@
 import Prompt from "@/models/Prompt";
 
 // ✅ Get all prompts with optional query and sort
-export async function getAllPrompts(query: Record<string, unknown> = {}, sort: Record<string, number> = { createdAt: -1 }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getAllPrompts(query: any = {}, sort: any = { createdAt: -1 }) {
   return await Prompt.find(query).sort(sort).lean();
 }
 

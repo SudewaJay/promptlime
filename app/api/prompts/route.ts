@@ -13,12 +13,14 @@ export async function GET(req: Request) {
     const tag = searchParams.get("tag");
     const sort = searchParams.get("sort"); // 'trending' or 'date' (default)
 
-    const query: Record<string, unknown> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query: any = {};
     if (tool && tool !== "All") query.tool = tool;
     if (category) query.category = category;
     if (tag) query.tags = tag;
 
-    let sortOption: Record<string, number> = { createdAt: -1 }; // Default: Newest first
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let sortOption: any = { createdAt: -1 }; // Default: Newest first
     if (sort === "trending") {
       sortOption = { views: -1, likes: -1, copyCount: -1 };
     }
