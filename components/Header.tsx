@@ -17,6 +17,14 @@ interface ExtendedUser {
   createdAt?: Date | string;
 }
 
+interface Notification {
+  _id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 export default function Header() {
   const { searchTerm, setSearchTerm } = useSearch();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -43,7 +51,7 @@ export default function Header() {
   }, [user, isPro]);
 
   // 🔔 Notification State
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement | null>(null);

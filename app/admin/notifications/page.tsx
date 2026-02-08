@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Send, Users, User, Loader2, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
+// import { useSession } from "next-auth/react";
+// import Image from "next/image";
 
 export default function AdminNotifications() {
-    const { data: session } = useSession();
+    // const { data: session } = useSession();
     const [target, setTarget] = useState<"all" | "user">("all");
     const [userId, setUserId] = useState("");
     const [title, setTitle] = useState("");
@@ -78,8 +78,8 @@ export default function AdminNotifications() {
                                         type="button"
                                         onClick={() => setTarget("all")}
                                         className={`flex items-center justify-center gap-2 p-4 rounded-xl border transition-all ${target === "all"
-                                                ? "bg-lime-400/20 border-lime-400 text-lime-400"
-                                                : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                                            ? "bg-lime-400/20 border-lime-400 text-lime-400"
+                                            : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                                             }`}
                                     >
                                         <Users size={20} />
@@ -89,8 +89,8 @@ export default function AdminNotifications() {
                                         type="button"
                                         onClick={() => setTarget("user")}
                                         className={`flex items-center justify-center gap-2 p-4 rounded-xl border transition-all ${target === "user"
-                                                ? "bg-lime-400/20 border-lime-400 text-lime-400"
-                                                : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                                            ? "bg-lime-400/20 border-lime-400 text-lime-400"
+                                            : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                                             }`}
                                     >
                                         <User size={20} />
@@ -149,8 +149,8 @@ export default function AdminNotifications() {
                                 type="submit"
                                 disabled={sending || (target === "user" && !userId)}
                                 className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${success
-                                        ? "bg-green-500 text-white"
-                                        : "bg-lime-400 text-black hover:bg-lime-300"
+                                    ? "bg-green-500 text-white"
+                                    : "bg-lime-400 text-black hover:bg-lime-300"
                                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
                                 {sending ? (

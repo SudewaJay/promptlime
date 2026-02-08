@@ -13,12 +13,12 @@ export async function GET(req: Request) {
     const tag = searchParams.get("tag");
     const sort = searchParams.get("sort"); // 'trending' or 'date' (default)
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (tool && tool !== "All") query.tool = tool;
     if (category) query.category = category;
     if (tag) query.tags = tag;
 
-    let sortOption: any = { createdAt: -1 }; // Default: Newest first
+    let sortOption: Record<string, number> = { createdAt: -1 }; // Default: Newest first
     if (sort === "trending") {
       sortOption = { views: -1, likes: -1, copyCount: -1 };
     }

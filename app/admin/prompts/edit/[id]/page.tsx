@@ -21,27 +21,27 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
+        const fetchPrompt = async () => {
+            try {
+                const res = await fetch(`/api/prompts/${id}`);
+                const data = await res.json();
+                if (data.data) {
+                    setForm({
+                        title: data.data.title || "",
+                        category: data.data.category || "",
+                        prompt: data.data.prompt || "",
+                        image: data.data.image || "",
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch prompt", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchPrompt();
     }, [id]);
-
-    const fetchPrompt = async () => {
-        try {
-            const res = await fetch(`/api/prompts/${id}`);
-            const data = await res.json();
-            if (data.data) {
-                setForm({
-                    title: data.data.title || "",
-                    category: data.data.category || "",
-                    prompt: data.data.prompt || "",
-                    image: data.data.image || "",
-                });
-            }
-        } catch (error) {
-            console.error("Failed to fetch prompt", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

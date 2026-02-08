@@ -4,13 +4,13 @@ import { authOptions } from "@/lib/authOptions";
 import clientPromise from "@/lib/mongodb";
 import Notification from "@/models/Notification";
 import User from "@/models/User";
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
 
 // Helper to check admin status (Replace with actual admin check logic if different)
-const isAdmin = (email: string) => {
-    const admins = process.env.ADMIN_EMAILS?.split(",") || [];
-    return admins.includes(email);
-};
+// const isAdmin = (email: string) => {
+//     const admins = process.env.ADMIN_EMAILS?.split(",") || [];
+//     return admins.includes(email);
+// };
 
 export async function POST(req: Request) {
     try {
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         if (target === "all") {
             // Fetch all user IDs
             const users = await User.find({}, "_id");
-            recipients = users.map((u: any) => u._id);
+            recipients = users.map((u: { _id: string }) => u._id);
         } else if (target === "user" && userId) {
             recipients = [userId];
         } else {

@@ -20,7 +20,7 @@ interface PromptCardProps {
 
 export default function PromptCard({
   _id,
-  category,
+  // category,
   tool,
   title,
   prompt,
