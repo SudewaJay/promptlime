@@ -47,8 +47,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.isPro = (user as any).isPro;
-        token.createdAt = (user as any).createdAt;
+        token.isPro = user.isPro;
+        token.createdAt = user.createdAt;
       }
       // Handle user updates if necessary (e.g. valid session updates)
       if (trigger === "update" && session) {
