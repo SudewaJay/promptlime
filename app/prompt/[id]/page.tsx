@@ -1,7 +1,7 @@
 // ✅ app/prompt/[id]/page.tsx
 import { notFound } from "next/navigation";
 import connectToDatabase from "@/lib/mongodb";
-import Prompt from "@/models/Prompt";
+import Prompt, { IPrompt } from "@/models/Prompt";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptActions from "@/components/PromptActions";
@@ -24,7 +24,7 @@ type PromptType = {
 // ✅ Metadata Generation for Social Sharing
 export async function generateMetadata({ params }: { params: { id: string } }) {
   await connectToDatabase();
-  const prompt = await Prompt.findById(params.id).lean();
+  const prompt = await Prompt.findById(params.id).lean() as IPrompt | null;
 
   if (!prompt) {
     return {
