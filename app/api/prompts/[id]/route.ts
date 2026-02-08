@@ -78,65 +78,92 @@ export async function PATCH(req: NextRequest) {
 
   try {
     await connectToDatabase();
+    // Using simple request body parsing
+    const body = await req.json().catch(() => ({}));
+    const { action } = body;
 
-    const session: Session | null = await getServerSession(authOptions);
-    const cookieStore = await cookies();
-    const { action } = await req.json();
+    // Handle Like Action
+    if (action === "incrementLike" || action === "decrementLike") {
+      const update =
+        action === "incrementLike"
+          ? { $inc: { likes: 1 } }
+          : { $inc: { likes: -1 } };
 
+      const updatedPrompt = await Prompt.findByIdAndUpdate(id, update, { new: true });
+      return NextResponse.json({ success: true, prompt: updatedPrompt }, { status: 200 });
+    }
+
+    // Handle Copy Action
     if (action !== "incrementCopyCount") {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
+    const session: Session | null = await getServerSession(authOptions);
+    const cookieStore = await cookies();
+
     let allowCopy = true;
     let setCookie = false;
+    let errorMessage = "";
+    let currentGuestCount = 0;
 
-    // Guest copy limit via cookie (ALLOW 2 COPIES)
+    // 1. Guest Logic (Cookie based)
     if (!session?.user) {
       const copyCountCookie = cookieStore.get("guest_copy_count");
-      let currentCount = copyCountCookie ? parseInt(copyCountCookie.value, 10) : 0;
+      currentGuestCount = copyCountCookie ? parseInt(copyCountCookie.value, 10) : 0;
 
-      if (currentCount >= 2) {
+      if (currentGuestCount >= 2) {
         allowCopy = false;
+        errorMessage = "Guest limit reached (2/2). Please login for more.";
       } else {
-        currentCount += 1;
+        currentGuestCount += 1;
         setCookie = true;
-
-
-
-        // We need to set the cookie on the response
-        // We'll store the count in a variable to set it later
-        (req as unknown as { _guestCopyCount: number })._guestCopyCount = currentCount;
+        // Construct a way to pass this back (NextJS middleware/response style)
+        // We will set the cookie on the response object later
       }
     }
-
-    // Logged-in user limit - UNLIMITED
-    if (session?.user?.email) {
+    // 2. Logged-in User Logic (DB based)
+    else if (session.user.email) {
       const user = await User.findOne({ email: session.user.email });
+
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
-      // Track usage statistics (optional reset logic preserved)
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      // Check Pro Status
+      if (user.isPro) {
+        // Pro users have UNLIMITED copies
+        allowCopy = true;
+      } else {
+        // Free Users: 20/month limit
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      if (!user.lastReset || user.lastReset < startOfMonth) {
-        user.copyCount = 0;
-        user.lastReset = now;
+        // Reset if needed
+        if (!user.lastReset || new Date(user.lastReset) < startOfMonth) {
+          user.copyCount = 0;
+          user.lastReset = now;
+        }
+
+        if (user.copyCount >= 20) {
+          allowCopy = false;
+          errorMessage = "Free limit reached (20/20). Upgrade to Pro for unlimited.";
+        } else {
+          user.copyCount = (user.copyCount || 0) + 1;
+          // Ensure lastReset is set
+          if (!user.lastReset) user.lastReset = now;
+          await user.save();
+        }
       }
-
-      // UNLIMITED: No check against a limit
-      user.copyCount += 1;
-      await user.save();
     }
 
     if (!allowCopy) {
       return NextResponse.json(
-        { error: "Guests can only copy two prompts. Please login for unlimited access." },
+        { error: errorMessage },
         { status: 403 }
       );
     }
 
+    // Increment global prompt copy count
     const updatedPrompt = await Prompt.findByIdAndUpdate(
       id,
       { $inc: { copyCount: 1 } },
@@ -145,10 +172,10 @@ export async function PATCH(req: NextRequest) {
 
     const response = NextResponse.json({ success: true, prompt: updatedPrompt }, { status: 200 });
 
-    // Set cookie on the ACTUAL response object we are returning
+    // Set cookie if guest
     if (setCookie) {
-      const count = (req as unknown as { _guestCopyCount: number })._guestCopyCount;
-      response.cookies.set("guest_copy_count", count.toString(), {
+      // We can't use `response.cookies` directly in older Next/Edge sometimes, but in App Router this works
+      response.cookies.set("guest_copy_count", currentGuestCount.toString(), {
         maxAge: 86400 * 30, // 30 days
         path: "/",
         sameSite: "lax",
@@ -156,6 +183,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     return response;
+
   } catch (error) {
     console.error("❌ Error in PATCH /prompts/:id:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

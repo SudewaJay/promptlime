@@ -42,6 +42,7 @@ export default function PromptCard({
     e.stopPropagation();
     if (!_id) return;
 
+    console.log("📋 Copying prompt:", _id);
     try {
       const res = await fetch(`/api/prompts/${_id}`, {
         method: "PATCH",
@@ -54,14 +55,18 @@ export default function PromptCard({
         setModalMessage(data?.error || "Limit reached.");
         setShowModal(true);
 
-        if (session) {
-          setTimeout(() => router.push("/pricing"), 2500);
+        // Only redirect if it's the specific limit error for free users/guests
+        if (session && data?.error?.includes("limit")) {
+          // Optional: redirect logic or just show modal
         }
 
         return;
       }
 
       if (!res.ok) {
+        console.error("❌ Copy failed with status:", res.status);
+        const errorData = await res.json();
+        console.error("❌ Error details:", errorData);
         setModalMessage("❌ Something went wrong.");
         setShowModal(true);
         return;
@@ -255,8 +260,8 @@ export default function PromptCard({
             <button
               onClick={handleLike}
               className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
-                  ? "bg-red-500/80 text-white"
-                  : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+                ? "bg-red-500/80 text-white"
+                : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
                 }`}
             >
               <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
@@ -287,8 +292,8 @@ export default function PromptCard({
             <button
               onClick={handleCopy}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
-                  ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
-                  : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
+                ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
+                : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
                 }`}
             >
               {copied ? (

@@ -107,7 +107,7 @@ export default function Header() {
           {/* 📊 Copy Count */}
           {user && !isPro && (
             <span className="text-xs text-white/70 bg-white/10 px-3 py-1 rounded-full border border-white/10 hidden sm:block">
-              {copyCount} / 5 copied
+              {copyCount} / 20 copied (Monthly)
             </span>
           )}
           {user && isPro && (
@@ -135,9 +135,8 @@ export default function Header() {
             <div className="relative z-[60]" ref={dropdownRef}>
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className={`rounded-full border-2 border-transparent ${
-                  isPro ? "ring-2 ring-yellow-400" : ""
-                }`}
+                className={`rounded-full border-2 border-transparent ${isPro ? "ring-2 ring-yellow-400" : ""
+                  }`}
               >
                 <Image
                   src={user.image || "/default-avatar.png"}

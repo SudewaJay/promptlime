@@ -1,36 +1,33 @@
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import clientPromise from "@/lib/clientPromise";
+import connectToDatabase from "@/lib/mongodb";
+import User from "@/models/User";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user?.id) {
-    return new Response(JSON.stringify({ count: 0 }), { status: 401 });
+  if (!session?.user?.email) {
+    return NextResponse.json({ count: 0 }, { status: 401 });
   }
 
-  const userId = session.user.id;
-
   try {
-    const client = await clientPromise;
-    const db = client.db("promptlime"); // ✅ Change to your DB name if different
-    const copyLogs = db.collection("copyLogs");
+    await connectToDatabase();
+    const user = await User.findOne({ email: session.user.email });
 
-    const copyCount = await copyLogs.countDocuments({ userId });
+    if (!user) {
+      return NextResponse.json({ count: 0, error: "User not found" }, { status: 404 });
+    }
 
-    return new Response(JSON.stringify({ count: copyCount }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    // Return the copyCount from the User model
+    return NextResponse.json({
+      copyCount: user.copyCount || 0,
+      isPro: user.isPro || false
+    }, { status: 200 });
+
   } catch (err) {
     console.error("❌ Error getting copy count:", err);
-    return new Response(JSON.stringify({ count: 0, error: "Server error" }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return NextResponse.json({ count: 0, error: "Server error" }, { status: 500 });
   }
 }

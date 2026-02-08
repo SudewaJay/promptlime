@@ -145,8 +145,8 @@ export default function ProfilePage() {
             <p className="text-sm text-white/70 mt-2">Prompts Liked</p>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-xl py-6 px-4">
-            <h2 className="text-3xl font-bold text-lime-400">{stats.copied}</h2>
-            <p className="text-sm text-white/70 mt-2">Prompts Copied</p>
+            <h2 className="text-3xl font-bold text-lime-400">{isPro ? "∞" : `${stats.copied} / 20`}</h2>
+            <p className="text-sm text-white/70 mt-2">Prompts Copied {isPro ? "(Unlimited)" : "(This Month)"}</p>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-xl py-6 px-4">
             <h2 className="text-3xl font-bold text-lime-400">{stats.saved}</h2>
