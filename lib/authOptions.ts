@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.isPro = user.isPro;
-        token.createdAt = user.createdAt;
+        token.createdAt = user.createdAt ? new Date(user.createdAt) : undefined;
       }
       // Handle user updates if necessary (e.g. valid session updates)
       if (trigger === "update" && session) {
