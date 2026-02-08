@@ -110,7 +110,7 @@ export async function PATCH(req: NextRequest) {
 
         // We need to set the cookie on the response
         // We'll store the count in a variable to set it later
-        (req as any)._guestCopyCount = currentCount;
+        (req as unknown as { _guestCopyCount: number })._guestCopyCount = currentCount;
       }
     }
 
@@ -152,7 +152,7 @@ export async function PATCH(req: NextRequest) {
 
     // Set cookie on the ACTUAL response object we are returning
     if (setCookie) {
-      const count = (req as any)._guestCopyCount;
+      const count = (req as unknown as { _guestCopyCount: number })._guestCopyCount;
       response.cookies.set("guest_copy_count", count.toString(), {
         maxAge: 86400 * 30, // 30 days
         path: "/",

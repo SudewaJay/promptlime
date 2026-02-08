@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, Trash2, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle, Trash2 } from "lucide-react";
 
 type Report = {
     _id: string;

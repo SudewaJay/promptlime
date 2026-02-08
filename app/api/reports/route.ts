@@ -1,6 +1,5 @@
 import connectToDatabase from "@/lib/mongodb";
 import Report from "@/models/Report";
-import Prompt from "@/models/Prompt"; // Ensure Prompt model is registered
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
@@ -34,7 +33,7 @@ export async function POST(req: Request) {
     }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const session = await getServerSession(authOptions);
         // Add admin check

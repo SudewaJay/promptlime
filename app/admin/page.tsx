@@ -43,7 +43,7 @@ export default function AdminDashboard() {
     }: {
         title: string;
         value: number;
-        icon: any;
+        icon: React.ElementType;
         color: string;
     }) => (
         <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition">
