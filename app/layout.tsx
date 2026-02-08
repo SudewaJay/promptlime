@@ -38,6 +38,11 @@ export const metadata = {
   other: {
     "google-adsense-account": "ca-pub-1238521286098316",
   },
+  verification: {
+    other: {
+      "p:domain_verify": "90e938baca6d644be96a5dcc11ad13e3",
+    },
+  },
 };
 
 export default function RootLayout({
