@@ -40,15 +40,27 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
 
   callbacks: {
-    async session({ session, user }) {
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.id = user.id;
+        token.isPro = (user as any).isPro;
+        token.createdAt = (user as any).createdAt;
+      }
+      // Handle user updates if necessary (e.g. valid session updates)
+      if (trigger === "update" && session) {
+        token.isPro = session.user.isPro;
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = user.id;
-        session.user.isPro = user.isPro ?? false;
-        session.user.createdAt = user.createdAt ?? undefined;
+        session.user.id = token.id as string;
+        session.user.isPro = (token.isPro as boolean) ?? false;
+        session.user.createdAt = (token.createdAt as Date) ?? undefined;
       }
       return session;
     },
