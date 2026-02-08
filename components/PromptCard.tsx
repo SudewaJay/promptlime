@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Heart, Share2, Clipboard, Check, X, Flag } from "lucide-react";
@@ -36,7 +36,6 @@ export default function PromptCard({
   const [isReporting, setIsReporting] = useState(false);
 
   const { data: session } = useSession();
-  const router = useRouter();
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();

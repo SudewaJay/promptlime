@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Clipboard, Check, Heart, Share2 } from "lucide-react";
 
 interface Props {
@@ -79,8 +79,8 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
       <button
         onClick={handleCopyPrompt}
         className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all border backdrop-blur-md ${copied
-            ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
-            : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
+          ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
+          : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
           }`}
       >
         {copied ? <Check size={16} /> : <Clipboard size={16} />}
@@ -91,8 +91,8 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
       <button
         onClick={handleLike}
         className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
-            ? "bg-red-500/80 text-white"
-            : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+          ? "bg-red-500/80 text-white"
+          : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
           }`}
       >
         <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
