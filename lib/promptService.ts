@@ -9,15 +9,15 @@ export async function getAllPrompts() {
 // ✅ Create a new prompt
 export async function createPrompt(data: {
   title: string;
-  content: string;
-  tags?: string[];
-  createdBy?: string;
+  category: string;
+  prompt: string;
+  image?: string;
 }) {
   const newPrompt = new Prompt({
     title: data.title,
-    content: data.content,
-    tags: data.tags || [],
-    createdBy: data.createdBy || null,
+    category: data.category,
+    prompt: data.prompt,
+    image: data.image,
   });
 
   return await newPrompt.save();
