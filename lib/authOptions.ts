@@ -20,12 +20,30 @@ export const authOptions: NextAuthOptions = {
         const adminUsername = process.env.ADMIN_USERNAME;
         const adminPassword = process.env.ADMIN_PASSWORD;
 
+        if (!adminUsername || !adminPassword) {
+          console.error("❌ Admin credentials not set in environment variables");
+          return null;
+        }
+
+        const inputUsername = credentials?.username?.trim();
+        const inputPassword = credentials?.password; // Passwords might have spaces, but usually not leading/trailing. Let's not trim password to be safe, or just check.
+
+        console.log("🔐 Admin Login Attempt:");
+        console.log(`   - Env Username Set: ${!!adminUsername}`);
+        console.log(`   - Env Password Set: ${!!adminPassword}`);
+        console.log(`   - Input Username: '${inputUsername}'`);
+        console.log(`   - Match Username: ${inputUsername === adminUsername}`);
+        console.log(`   - Match Password: ${inputPassword === adminPassword}`);
+
         if (
-          credentials?.username === adminUsername &&
-          credentials?.password === adminPassword
+          inputUsername === adminUsername &&
+          inputPassword === adminPassword
         ) {
+          console.log("✅ Admin login successful");
           return { id: "admin", name: "Admin", email: "admin@promptlime.com" };
         }
+
+        console.log("❌ Admin login failed: Invalid credentials");
         return null;
       },
     }),
@@ -41,6 +59,10 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
+  },
+
+  pages: {
+    signIn: '/signin',
   },
 
   callbacks: {
