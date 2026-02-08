@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Heart, Share2, Clipboard, Check, X } from "lucide-react";
+import { Heart, Share2, Clipboard, Check, X, Flag } from "lucide-react";
 import Image from "next/image";
 
 interface PromptCardProps {
@@ -30,7 +30,10 @@ export default function PromptCard({
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
   const [showModal, setShowModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false); // New Report Modal
   const [modalMessage, setModalMessage] = useState("");
+  const [reportReason, setReportReason] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -108,6 +111,30 @@ export default function PromptCard({
     }
   };
 
+  const handleReport = async () => {
+    if (!reportReason) return;
+    setIsReporting(true);
+    try {
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ promptId: _id, reason: reportReason }),
+      });
+
+      if (res.ok) {
+        setModalMessage("✅ Prompt reported. Thank you.");
+        setShowReportModal(false);
+        setShowModal(true);
+      } else {
+        alert("Failed to report prompt.");
+      }
+    } catch (err) {
+      console.error("Report error", err);
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
   return (
     <>
       {/* 🌟 Modal */}
@@ -129,11 +156,11 @@ export default function PromptCard({
             </button>
             <div className="relative z-10 text-center">
               <h2 className="text-2xl font-bold text-lime-400 mb-2">
-                Enjoying Our Prompts?
+                Notification
               </h2>
               <p className="text-sm text-gray-300 mb-5">{modalMessage}</p>
 
-              {!session && (
+              {!session && modalMessage.includes("Limit") && (
                 <button
                   onClick={() => signIn("google")}
                   className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-4 py-2.5 rounded-full hover:bg-gray-100 w-full transition"
@@ -149,6 +176,48 @@ export default function PromptCard({
               )}
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {/* 🚨 Report Modal */}
+      {showReportModal && (
+        <div
+          className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-md flex items-center justify-center px-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-white mb-4">Report Prompt</h3>
+            <div className="space-y-2 mb-4">
+              {["Inappropriate Content", "Spam / Misleading", "Not Working", "Other"].map((r) => (
+                <label key={r} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition">
+                  <input
+                    type="radio"
+                    name="reportReason"
+                    value={r}
+                    checked={reportReason === r}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="accent-lime-400"
+                  />
+                  <span className="text-sm text-white">{r}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="px-4 py-2 text-sm text-white/60 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReport}
+                disabled={!reportReason || isReporting}
+                className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
+              >
+                {isReporting ? "Sending..." : "Submit Report"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -185,11 +254,10 @@ export default function PromptCard({
             {/* ❤️ Like */}
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full transition-all ${
-                isLiked
+              className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
                   ? "bg-red-500/80 text-white"
                   : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
-              }`}
+                }`}
             >
               <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
               {likeCount}
@@ -203,14 +271,25 @@ export default function PromptCard({
               <Share2 size={16} /> Share
             </button>
 
+            {/* 🚩 Report */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowReportModal(true);
+              }}
+              className="flex items-center gap-1 text-sm px-2 py-1.5 rounded-full text-white/40 hover:text-red-400 hover:bg-red-500/10 transition"
+              title="Report Prompt"
+            >
+              <Flag size={14} />
+            </button>
+
             {/* 📋 Copy */}
             <button
               onClick={handleCopy}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${
-                copied
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
                   ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
                   : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
-              }`}
+                }`}
             >
               {copied ? (
                 <span className="flex items-center gap-1">

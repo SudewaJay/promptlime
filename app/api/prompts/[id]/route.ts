@@ -90,13 +90,27 @@ export async function PATCH(req: NextRequest) {
     let allowCopy = true;
     let setCookie = false;
 
-    // Guest copy limit via cookie
+    // Guest copy limit via cookie (ALLOW 2 COPIES)
     if (!session?.user) {
-      const copiedOnce = cookieStore.get("copied_once");
-      if (copiedOnce?.value === "true") {
+      const copyCountCookie = cookieStore.get("guest_copy_count");
+      let currentCount = copyCountCookie ? parseInt(copyCountCookie.value, 10) : 0;
+
+      if (currentCount >= 2) {
         allowCopy = false;
       } else {
+        currentCount += 1;
         setCookie = true;
+
+        // Define cookie options for reuse
+        const cookieOptions = {
+          maxAge: 86400 * 30, // 30 days
+          path: "/",
+          sameSite: "lax" as const,
+        };
+
+        // We need to set the cookie on the response
+        // We'll store the count in a variable to set it later
+        (req as any)._guestCopyCount = currentCount;
       }
     }
 
@@ -107,10 +121,7 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
-      // We still track the copy count for statistics, but no longer limit it.
-      // (Optional: You can keep the monthly reset logic if you want to track monthly usage, 
-      // but strictly speaking it's not needed for "unlimited". I'll keep it for clean data.)
-
+      // Track usage statistics (optional reset logic preserved)
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -119,15 +130,14 @@ export async function PATCH(req: NextRequest) {
         user.lastReset = now;
       }
 
-      // REMOVED: 5 copy limit check
-
+      // UNLIMITED: No check against a limit
       user.copyCount += 1;
       await user.save();
     }
 
     if (!allowCopy) {
       return NextResponse.json(
-        { error: "Guests can only copy one prompt. Please login to continue." },
+        { error: "Guests can only copy two prompts. Please login for unlimited access." },
         { status: 403 }
       );
     }
@@ -142,8 +152,9 @@ export async function PATCH(req: NextRequest) {
 
     // Set cookie on the ACTUAL response object we are returning
     if (setCookie) {
-      response.cookies.set("copied_once", "true", {
-        maxAge: 86400, // 24 hours
+      const count = (req as any)._guestCopyCount;
+      response.cookies.set("guest_copy_count", count.toString(), {
+        maxAge: 86400 * 30, // 30 days
         path: "/",
         sameSite: "lax",
       });

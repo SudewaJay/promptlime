@@ -19,7 +19,7 @@ export async function checkAndUpdateCopyLimit(userId: string) {
   return {
     isPro: user.isPro,
     copyCount: user.copyCount,
-    remaining: user.isPro ? Infinity : 5 - user.copyCount,
+    remaining: Infinity, // Unlimited for everyone
   };
 }
 
