@@ -101,12 +101,7 @@ export async function PATCH(req: NextRequest) {
         currentCount += 1;
         setCookie = true;
 
-        // Define cookie options for reuse
-        const cookieOptions = {
-          maxAge: 86400 * 30, // 30 days
-          path: "/",
-          sameSite: "lax" as const,
-        };
+
 
         // We need to set the cookie on the response
         // We'll store the count in a variable to set it later
