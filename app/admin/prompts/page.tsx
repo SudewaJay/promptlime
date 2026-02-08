@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Trash2, Edit, Plus, FileText } from "lucide-react";
+import { Search, Trash2, Edit, Plus } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
