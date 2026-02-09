@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/context/SearchContext";
@@ -364,10 +364,19 @@ export default function Header() {
                     exit={{ y: "100%" }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="fixed bottom-0 left-0 w-full bg-[#1a1a1a] rounded-t-2xl z-[102] max-h-[70vh] overflow-hidden flex flex-col pb-20 border-t border-white/10"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <div className="p-4 border-b border-white/10 flex justify-between items-center">
                       <h3 className="text-lg font-bold text-white">Notifications</h3>
-                      <button onClick={() => setShowNotifications(false)} className="text-white/40 p-2 active:scale-90 transition-transform">✕</button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowNotifications(false);
+                        }}
+                        className="text-white/40 p-2 active:scale-90 transition-transform hover:text-white"
+                      >
+                        <X size={20} />
+                      </button>
                     </div>
                     <div className="overflow-y-auto flex-1">
                       {notifications.length === 0 ? (
