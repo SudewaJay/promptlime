@@ -319,7 +319,7 @@ export default function Header() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search prompts..."
                     autoFocus
-                    className="w-full pl-9 pr-4 py-3 text-sm text-white placeholder:text-white/50 rounded-xl border border-white/10 bg-white/5 focus:bg-white/10 focus:border-lime-400/50 outline-none transition-all"
+                    className="w-full pl-9 pr-4 py-3 text-base text-white placeholder:text-white/50 rounded-xl border border-white/10 bg-white/5 focus:bg-white/10 focus:border-lime-400/50 outline-none transition-all"
                   />
                 </div>
               </div>
