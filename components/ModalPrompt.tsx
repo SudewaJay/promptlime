@@ -108,7 +108,7 @@ export default function ModalPrompt({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center px-4 py-12 sm:py-20"
+        className="fixed inset-0 z-[90] bg-black/60 flex items-center justify-center px-4 pt-20 pb-20 sm:py-20"
         onClick={onClose}
       >
         <motion.div
@@ -161,8 +161,8 @@ export default function ModalPrompt({
                   <button
                     onClick={handleCopy}
                     className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
-                        ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
-                        : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
+                      ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
+                      : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
                       }`}
                   >
                     {copied ? (
@@ -180,8 +180,8 @@ export default function ModalPrompt({
                   <button
                     onClick={handleLike}
                     className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
-                        ? "bg-red-500/80 text-white"
-                        : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+                      ? "bg-red-500/80 text-white"
+                      : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
                       }`}
                   >
                     <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
