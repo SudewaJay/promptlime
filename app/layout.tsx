@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import SessionWrapper from "@/components/SessionWrapper";
 import { SearchProvider } from "@/context/SearchContext";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -59,6 +60,7 @@ export default function RootLayout({
           <SearchProvider>
             <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             {children}
+            <Analytics />
           </SearchProvider>
         </SessionWrapper>
       </body>
