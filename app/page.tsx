@@ -150,24 +150,37 @@ export default function Home() {
         {/* Top Controls: Tools & Toggles */}
         <div id="filter-sentinel" className="h-[1px] w-full pointer-events-none absolute top-[-1px] opacity-0" />
         <div
-          className={`sticky top-[64px] z-40 pt-4 pb-12 mb-0 w-full transition-all duration-300 ${isSticky
-            ? "bg-gradient-to-b from-[#0f0f0f] via-[#0f0f0f]/80 to-transparent"
+          className={`sticky top-[64px] z-40 pt-2 pb-6 w-full transition-all duration-300 ${isSticky
+            ? "bg-[#0f0f0f]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/50"
             : "bg-transparent"
             }`}
         >
           <div className="max-w-6xl mx-auto px-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <div className="w-full md:w-auto overflow-hidden">
-                  {/* Tool Tabs */}
-                  <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+                {/* 🛠️ Tools List (Horizontal Scroll) */}
+                <div className="w-full md:w-auto relative group">
+                  {/* Fade Gradients */}
+                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0f0f0f] to-transparent z-10 pointer-events-none md:hidden" />
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0f0f0f] to-transparent z-10 pointer-events-none md:hidden" />
+
+                  <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1 md:px-0">
+                    <button
+                      onClick={() => setActiveTool("All")}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap border ${activeTool === "All"
+                        ? "bg-lime-400 text-black border-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.3)]"
+                        : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                        }`}
+                    >
+                      All Tools
+                    </button>
                     {tools.map(tool => (
                       <button
                         key={tool._id}
                         onClick={() => setActiveTool(activeTool === tool.name ? "All" : tool.name)}
                         className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap border ${activeTool === tool.name
-                          ? "bg-lime-400 text-black border-lime-400"
-                          : "bg-transparent text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                          ? "bg-lime-400 text-black border-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.3)]"
+                          : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
                           }`}
                       >
                         {tool.name}
@@ -176,48 +189,43 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Trending Toggle */}
-                <div
-                  className="relative w-60 h-10 rounded-full bg-white/5 border border-white/10 flex items-center cursor-pointer shrink-0"
-                  onClick={() => {
-                    setActiveTab(activeTab === "trending" ? "all" : "trending");
-                  }}
-                >
-                  <motion.div
-                    layout
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className={`absolute top-[2px] w-[calc(50%-4px)] h-[calc(100%-4px)] bg-lime-400 rounded-full z-0 transition-all duration-300 ${activeTab === "trending" ? "left-1" : "left-1/2"
-                      }`}
-                  />
-                  <div className="relative z-10 flex justify-between w-full text-sm font-semibold text-white px-2">
-                    <div className={`w-1/2 text-center transition-colors ${activeTab === "trending" ? "text-black" : "text-white/60"}`}>
+                {/* 🔥 Trending Toggle (Compact Mobile) */}
+                <div className="flex items-center justify-between md:justify-end gap-3">
+                  <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full md:w-auto">
+                    {/* Mobile: Tabs style, Desktop: Pill style */}
+                    <button
+                      onClick={() => setActiveTab("trending")}
+                      className={`relative flex-1 md:flex-none px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "trending" ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/70"}`}
+                    >
                       Trending
-                    </div>
-                    <div className={`w-1/2 text-center transition-colors ${activeTab === "all" ? "text-black" : "text-white/60"}`}>
+                      {activeTab === "trending" && (
+                        <motion.div layoutId="activeTab" className="absolute inset-0 bg-lime-400/10 rounded-lg border border-lime-400/20" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("all")}
+                      className={`relative flex-1 md:flex-none px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "all" ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/70"}`}
+                    >
                       Newest
-                    </div>
+                      {activeTab === "all" && (
+                        <motion.div layoutId="activeTab" className="absolute inset-0 bg-lime-400/10 rounded-lg border border-lime-400/20" />
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Tags Cloud */}
+              {/* 🏷️ Tags Cloud (Optional) */}
               {uniqueTags.length > 0 && (
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 pb-2 border-t border-white/5 mt-2">
-                  <span className="text-xs text-white/40 uppercase font-semibold shrink-0">Tags:</span>
-                  <button
-                    onClick={() => setActiveTag(null)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition whitespace-nowrap border ${!activeTag ? "bg-white text-black border-white" : "text-white/50 border-white/10 hover:text-white hover:border-white/30 bg-transparent"
-                      }`}
-                  >
-                    All
-                  </button>
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-white/5">
+                  <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider shrink-0">Tags</span>
                   {uniqueTags.map(tag => (
                     <button
                       key={tag}
                       onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition whitespace-nowrap border ${activeTag === tag
-                        ? "bg-white text-black border-white"
-                        : "text-white/50 border-white/10 hover:text-white hover:border-white/30 bg-transparent"
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition whitespace-nowrap border ${activeTag === tag
+                        ? "bg-lime-400/10 text-lime-400 border-lime-400/30"
+                        : "text-white/40 border-transparent hover:text-white hover:bg-white/5"
                         }`}
                     >
                       #{tag}
