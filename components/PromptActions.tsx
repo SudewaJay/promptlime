@@ -78,7 +78,7 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
       {/* 📋 Copy Button */}
       <button
         onClick={handleCopyPrompt}
-        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all border backdrop-blur-md ${copied
+        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all active:scale-95 border backdrop-blur-md ${copied
           ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
           : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
           }`}
@@ -90,7 +90,7 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
       {/* ❤️ Like Button */}
       <button
         onClick={handleLike}
-        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
+        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all active:scale-95 ${isLiked
           ? "bg-red-500/80 text-white"
           : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
           }`}
@@ -102,7 +102,7 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
       {/* 🔗 Share Button */}
       <button
         onClick={handleShare}
-        className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
+        className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition-all active:scale-95"
       >
         <Share2 size={16} /> Share
       </button>

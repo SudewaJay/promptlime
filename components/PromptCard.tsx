@@ -238,7 +238,7 @@ export default function PromptCard({
         onClick={onClick}
         role="button"
         tabIndex={0}
-        className="flex flex-row items-start gap-3 md:gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 cursor-pointer"
+        className="flex flex-row items-start gap-3 md:gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 active:scale-[0.98] cursor-pointer"
       >
         {image && (
           <div className="relative group w-32 h-32 md:w-40 md:h-40 rounded-lg md:rounded-xl overflow-hidden shrink-0">

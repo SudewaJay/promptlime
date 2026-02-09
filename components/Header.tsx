@@ -332,14 +332,14 @@ export default function Header() {
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#0f0f0f]/90 backdrop-blur-xl border-t border-white/10 z-[100] pb-safe">
         <div className="flex justify-around items-center h-16">
           {/* 🏠 Home */}
-          <Link href="/" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition">
+          <Link href="/" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
             <span className="text-[10px] font-medium">Home</span>
           </Link>
 
           {/* 🔔 Notifications */}
           <div className="relative" onClick={() => setShowNotifications(!showNotifications)}>
-            <div className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition cursor-pointer">
+            <div className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95 cursor-pointer">
               <div className="relative">
                 <Bell size={24} />
                 {unreadCount > 0 && (
@@ -362,11 +362,12 @@ export default function Header() {
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     exit={{ y: "100%" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="fixed bottom-0 left-0 w-full bg-[#1a1a1a] rounded-t-2xl z-[102] max-h-[70vh] overflow-hidden flex flex-col pb-20 border-t border-white/10"
                   >
                     <div className="p-4 border-b border-white/10 flex justify-between items-center">
                       <h3 className="text-lg font-bold text-white">Notifications</h3>
-                      <button onClick={() => setShowNotifications(false)} className="text-white/40 p-2">✕</button>
+                      <button onClick={() => setShowNotifications(false)} className="text-white/40 p-2 active:scale-90 transition-transform">✕</button>
                     </div>
                     <div className="overflow-y-auto flex-1">
                       {notifications.length === 0 ? (
@@ -376,7 +377,7 @@ export default function Header() {
                           <div
                             key={n._id}
                             onClick={() => handleMarkAsRead(n._id, n.isRead)}
-                            className={`p-4 border-b border-white/5 active:bg-white/10 ${!n.isRead ? "bg-lime-400/5" : ""}`}
+                            className={`p-4 border-b border-white/5 active:bg-white/10 transition-colors ${!n.isRead ? "bg-lime-400/5" : ""}`}
                           >
                             <div className="flex gap-3">
                               <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${!n.isRead ? "bg-lime-400" : "bg-transparent"}`} />
@@ -398,7 +399,7 @@ export default function Header() {
 
           {/* 👤 Profile */}
           {user ? (
-            <Link href="/profile" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition">
+            <Link href="/profile" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
               <div className={`rounded-full border border-transparent ${isPro ? "ring-1 ring-yellow-400" : ""}`}>
                 <Image
                   src={user.image || "/default-avatar.png"}
@@ -411,7 +412,7 @@ export default function Header() {
               <span className="text-[10px] font-medium">Profile</span>
             </Link>
           ) : (
-            <button onClick={() => signIn("google")} className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition">
+            <button onClick={() => signIn("google")} className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" x2="3" y1="12" y2="12" /></svg>
               <span className="text-[10px] font-medium">Login</span>
             </button>
