@@ -27,6 +27,8 @@ export default function ModalPrompt({
   prompt: Prompt | null;
   onClose: () => void;
 }) {
+  const { data: session } = useSession();
+
   const [copied, setCopied] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(prompt?.likes || 0);
@@ -42,8 +44,6 @@ export default function ModalPrompt({
   }, [prompt]);
 
   if (!prompt) return null;
-
-  const { data: session } = useSession();
 
   const handleCopy = async () => {
     if (!prompt._id) return;
