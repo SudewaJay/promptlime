@@ -233,48 +233,48 @@ export default function PromptCard({
         onClick={onClick}
         role="button"
         tabIndex={0}
-        className="flex flex-col md:flex-row items-start gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 cursor-pointer"
+        className="flex flex-row items-start gap-3 md:gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 cursor-pointer"
       >
         {image && (
-          <div className="relative group w-full md:w-40 md:h-40 aspect-square md:aspect-auto rounded-xl overflow-hidden">
+          <div className="relative group w-24 h-24 md:w-40 md:h-40 rounded-lg md:rounded-xl overflow-hidden shrink-0">
             <Image
               src={image}
               alt={title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 40vw"
+              sizes="(max-width: 768px) 100px, 160px"
             />
           </div>
         )}
 
-        <div className="flex-1">
-          <div className="text-sm text-lime-400 font-medium mb-1">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs md:text-sm text-lime-400 font-medium mb-0.5 md:mb-1">
             {tool || "ChatGPT"}
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">{title}</h2>
-          <p className="text-gray-300 text-sm mb-4">
-            {prompt.length > 95 ? `${prompt.slice(0, 90)}...` : prompt}
+          <h2 className="text-base md:text-xl font-semibold text-white mb-1 md:mb-2 line-clamp-1">{title}</h2>
+          <p className="text-gray-300 text-xs md:text-sm mb-2 md:mb-4 line-clamp-2">
+            {prompt}
           </p>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 mt-3 md:flex-row">
+          <div className="flex flex-wrap items-center gap-2 mt-auto">
             {/* ❤️ Like */}
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
+              className={`flex items-center gap-1.5 text-xs md:text-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full transition-all ${isLiked
                 ? "bg-red-500/80 text-white"
                 : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
                 }`}
             >
-              <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
+              <Heart size={14} className="md:w-4 md:h-4" fill={isLiked ? "currentColor" : "none"} />
               {likeCount}
             </button>
 
             {/* 🔗 Share */}
             <button
               onClick={handleShare}
-              className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
+              className="flex items-center gap-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
             >
-              <Share2 size={16} /> Share
+              <Share2 size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Share</span>
             </button>
 
             {/* 🚩 Report */}
@@ -283,27 +283,27 @@ export default function PromptCard({
                 e.stopPropagation();
                 setShowReportModal(true);
               }}
-              className="flex items-center gap-1 text-sm px-2 py-1.5 rounded-full text-white/40 hover:text-red-400 hover:bg-red-500/10 transition"
+              className="flex items-center gap-1 text-xs md:text-sm px-2 py-1 md:py-1.5 rounded-full text-white/40 hover:text-red-400 hover:bg-red-500/10 transition"
               title="Report Prompt"
             >
-              <Flag size={14} />
+              <Flag size={12} className="md:w-3.5 md:h-3.5" />
             </button>
 
-            {/* 📋 Copy */}
+            {/* 📋 Copy (Right aligned) */}
             <button
               onClick={handleCopy}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
+              className={`ml-auto px-3 md:px-4 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-semibold border backdrop-blur-md transition-all ${copied
                 ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
                 : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
                 }`}
             >
               {copied ? (
                 <span className="flex items-center gap-1">
-                  <Check size={16} /> Copied
+                  <Check size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Copied</span>
                 </span>
               ) : (
                 <span className="flex items-center gap-1">
-                  <Clipboard size={16} /> Copy
+                  <Clipboard size={14} className="md:w-4 md:h-4" /> Copy
                 </span>
               )}
             </button>
