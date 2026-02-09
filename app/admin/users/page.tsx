@@ -10,6 +10,7 @@ type User = {
   email: string;
   image?: string;
   isPro: boolean;
+  copyCount?: number;
   createdAt?: string;
 };
 
@@ -95,6 +96,7 @@ export default function AdminUsersPage() {
                 <th className="p-4 font-semibold">User</th>
                 <th className="p-4 font-semibold">Status</th>
                 <th className="p-4 font-semibold">Joined</th>
+                <th className="p-4 font-semibold text-center">Copies</th>
                 <th className="p-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
@@ -137,12 +139,15 @@ export default function AdminUsersPage() {
                     <td className="p-4 text-sm text-white/60">
                       {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
                     </td>
+                    <td className="p-4 text-center text-sm font-medium text-white">
+                      {user.copyCount || 0}
+                    </td>
                     <td className="p-4 text-right space-x-2">
                       <button
                         onClick={() => togglePro(user._id)}
                         className={`text-xs px-3 py-1.5 rounded-lg border transition ${user.isPro
-                            ? "border-white/20 text-white/70 hover:bg-white/10"
-                            : "border-lime-400/30 text-lime-400 hover:bg-lime-400/10"
+                          ? "border-white/20 text-white/70 hover:bg-white/10"
+                          : "border-lime-400/30 text-lime-400 hover:bg-lime-400/10"
                           }`}
                       >
                         {user.isPro ? "Remove Pro" : "Gift Pro"}
