@@ -6,6 +6,7 @@ import { X, Clipboard, Check, Heart, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import PromptDisplay from "./PromptDisplay";
 
 type Prompt = {
   _id?: string;
@@ -163,10 +164,7 @@ export default function ModalPrompt({
             <div className="flex-1 flex flex-col">
               <div className="text-sm text-lime-400 mb-1">{prompt.tool || prompt.category}</div>
               <h2 className="text-2xl font-bold mb-3">{prompt.title}</h2>
-
-              <pre className="text-sm whitespace-pre-wrap bg-white/5 p-3 rounded-md border border-white/10 max-h-64 overflow-y-auto">
-                {prompt.prompt}
-              </pre>
+              <PromptDisplay text={prompt.prompt} />
 
               {/* 🎛️ Actions and Stats */}
               <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center mt-4 gap-4 sm:gap-6 w-full">

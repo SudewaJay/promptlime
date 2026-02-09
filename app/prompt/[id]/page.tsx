@@ -8,6 +8,7 @@ import PromptActions from "@/components/PromptActions";
 import AnimatedCTA from "@/components/AnimatedCTA";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
+import PromptDisplay from "@/components/PromptDisplay";
 
 type PromptType = {
   _id: string;
@@ -110,9 +111,7 @@ export default async function PromptPage({ params }: { params: { id: string } })
           <div className="flex-1">
             <div className="text-sm text-lime-400 mb-2">{prompt.category}</div>
             <h1 className="text-3xl font-bold mb-4">{prompt.title}</h1>
-            <pre className="bg-white/5 text-sm p-4 rounded-md border border-white/10 whitespace-pre-wrap mb-6 max-h-80 overflow-y-auto">
-              {prompt.prompt}
-            </pre>
+            <PromptDisplay text={prompt.prompt} />
 
             <PromptActions
               _id={prompt._id}
