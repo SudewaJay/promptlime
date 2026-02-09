@@ -139,9 +139,9 @@ export default function ModalPrompt({
           {/* ❌ Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 text-white/70 hover:text-white"
+            className="absolute top-3 right-3 text-white/70 hover:text-white bg-black/50 backdrop-blur-md p-2 rounded-full z-10 transition-colors"
           >
-            <X />
+            <X size={20} />
           </button>
 
           {/* 🧩 Layout: Image + Content */}
