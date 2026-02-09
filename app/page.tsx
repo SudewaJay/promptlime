@@ -150,7 +150,7 @@ export default function Home() {
         {/* Top Controls: Tools & Toggles */}
         <div id="filter-sentinel" className="h-[1px] w-full pointer-events-none absolute top-[-1px] opacity-0" />
         <div
-          className={`sticky top-[64px] z-40 pt-2 pb-6 w-full transition-all duration-300 ${isSticky
+          className={`sticky top-[58px] md:top-[64px] z-40 pt-2 pb-6 w-full transition-all duration-300 ${isSticky
             ? "bg-[#0f0f0f]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/50"
             : "bg-transparent"
             }`}
@@ -160,9 +160,9 @@ export default function Home() {
               <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
                 {/* 🛠️ Tools List (Horizontal Scroll) */}
                 <div className="w-full md:w-auto relative group">
-                  {/* Fade Gradients */}
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0f0f0f] to-transparent z-10 pointer-events-none md:hidden" />
-                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0f0f0f] to-transparent z-10 pointer-events-none md:hidden" />
+                  {/* Fade Gradients (Only visible when sticky to match bg) */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0f0f0f] to-transparent z-10 pointer-events-none md:hidden transition-opacity duration-300 ${isSticky ? "opacity-100" : "opacity-0"}`} />
+                  <div className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0f0f0f] to-transparent z-10 pointer-events-none md:hidden transition-opacity duration-300 ${isSticky ? "opacity-100" : "opacity-0"}`} />
 
                   <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1 md:px-0">
                     <button
