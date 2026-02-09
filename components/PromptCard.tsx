@@ -236,13 +236,13 @@ export default function PromptCard({
         className="flex flex-row items-start gap-3 md:gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 cursor-pointer"
       >
         {image && (
-          <div className="relative group w-24 h-24 md:w-40 md:h-40 rounded-lg md:rounded-xl overflow-hidden shrink-0">
+          <div className="relative group w-32 h-32 md:w-40 md:h-40 rounded-lg md:rounded-xl overflow-hidden shrink-0">
             <Image
               src={image}
               alt={title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 100px, 160px"
+              sizes="(max-width: 768px) 128px, 160px"
             />
           </div>
         )}
