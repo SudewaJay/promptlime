@@ -44,6 +44,20 @@ export default function PromptCard({
     if (!_id) return;
 
     console.log("📋 Copying prompt:", _id);
+    // 1. Optimistic Copy (Fixes Safari/Mobile async clipboard issues)
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("❌ Clipboard error", err);
+      // Fallback or just notify failure
+      setModalMessage("❌ Failed to copy to clipboard. Please copy manually.");
+      setShowModal(true);
+      return;
+    }
+
+    // 2. Track Copy / Check Limit (Fire & Forget logic with Guard)
     try {
       const res = await fetch(`/api/prompts/${_id}`, {
         method: "PATCH",
@@ -53,33 +67,24 @@ export default function PromptCard({
 
       if (res.status === 403) {
         const data = await res.json();
-        setModalMessage(data?.error || "Limit reached.");
+        setModalMessage(`⚠️ ${data?.error || "Limit reached."}`);
         setShowModal(true);
 
-        // Only redirect if it's the specific limit error for free users/guests
+        // Optional: specific redirect logic for limit
         if (session && data?.error?.includes("limit")) {
-          // Optional: redirect logic or just show modal
+          // logic...
         }
-
         return;
       }
 
       if (!res.ok) {
-        console.error("❌ Copy failed with status:", res.status);
-        const errorData = await res.json();
-        console.error("❌ Error details:", errorData);
-        setModalMessage("❌ Something went wrong.");
-        setShowModal(true);
-        return;
+        console.error("❌ Copy tracking failed:", res.status);
+        // We don't alert the user here because they got the text successfully.
       }
-
-      await navigator.clipboard.writeText(prompt);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("❌ Copy error", err);
-      setModalMessage("❌ Failed to copy prompt.");
-      setShowModal(true);
+      // Network error tracking copy
+      console.error("❌ Tracker error", err);
+      // Silent fail on tracking if copy worked
     }
   };
 
