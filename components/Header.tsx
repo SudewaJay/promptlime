@@ -118,14 +118,14 @@ export default function Header() {
   return (
     <>
       <header className="fixed top-0 left-0 w-full z-[100] backdrop-blur-md bg-[#0f0f0f]/80 border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between relative">
+        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between relative">
           {/* 🔰 Logo */}
           <Link href="/" className="flex items-center gap-2 relative z-[60]">
             <Image
               src="/logo.svg"
               alt="PromptHubb logo"
-              width={130}
-              height={30}
+              width={140}
+              height={32}
               priority
             />
           </Link>
@@ -150,7 +150,7 @@ export default function Header() {
               onClick={() => setShowMobileSearch(!showMobileSearch)}
               className="text-white/70 hover:text-white transition"
             >
-              <Search size={24} />
+              <Search size={26} />
             </button>
           </div>
 
