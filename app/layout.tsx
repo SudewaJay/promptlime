@@ -7,32 +7,34 @@ import { SearchProvider } from "@/context/SearchContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Promptlime – Best ChatGPT Prompts",
+  title: "PromptLime | Premium AI Prompts & Creative Tools",
   description:
-    "Stop guessing. Start generating. Discover the most powerful and curated ChatGPT prompts for every use case.",
+    "Discover high-quality AI prompts and creative assets to supercharge your workflow. Explore the best tools for AI generation at PromptLime.",
   openGraph: {
-    title: "Promptlime – Best ChatGPT Prompts",
+    title: "PromptLime | Premium AI Prompts & Creative Tools",
     description:
-      "Stop guessing. Start generating. Discover the most powerful and curated ChatGPT prompts for every use case.",
-    url: "https://www.promptlime.space",
-    siteName: "Promptlime",
+      "Discover high-quality AI prompts and creative assets to supercharge your workflow. Explore the best tools for AI generation at PromptLime.",
+    url: "https://promptlime.space/",
+    siteName: "PromptLime",
     images: [
       {
-        url: "/images/promptlime site feature image.jpg",
+        url: "https://i.pinimg.com/736x/b4/8c/33/b48c33dd1dec716d1cb184c04b208d22.jpg",
         width: 1200,
         height: 630,
-        alt: "Promptlime – Best ChatGPT Prompts",
+        alt: "PromptLime | Premium AI Prompts & Creative Tools",
       },
     ],
     locale: "en_US",
-    type: "website",
+    type: "article",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Promptlime – Best ChatGPT Prompts",
+    title: "PromptLime | Premium AI Prompts & Creative Tools",
     description:
-      "Stop guessing. Start generating. Discover the best prompts for ChatGPT.",
-    images: ["/images/promptlime site feature image.jpg"],
+      "Discover high-quality AI prompts and creative assets to supercharge your workflow. Explore the best tools for AI generation at PromptLime.",
+    images: [
+      "https://i.pinimg.com/736x/b4/8c/33/b48c33dd1dec716d1cb184c04b208d22.jpg",
+    ],
   },
   // 👇 Add your Google AdSense meta here
   other: {
