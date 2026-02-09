@@ -10,6 +10,7 @@ type Prompt = {
   _id?: string;
   title: string;
   category: string;
+  tool?: string;
   prompt: string;
   image?: string;
   createdAt?: string;
@@ -44,6 +45,18 @@ export default function ModalPrompt({
   const handleCopy = async () => {
     if (!prompt._id) return;
 
+    // 1. Optimistic Copy
+    try {
+      await navigator.clipboard.writeText(prompt.prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("❌ Clipboard error", err);
+      alert("❌ Failed to copy to clipboard. Please copy manually.");
+      return;
+    }
+
+    // 2. Track Copy
     try {
       const res = await fetch(`/api/prompts/${prompt._id}`, {
         method: "PATCH",
@@ -53,25 +66,14 @@ export default function ModalPrompt({
 
       if (res.status === 403) {
         const data = await res.json();
-        alert(data?.error || "Limit reached.");
-        // Optional: redirect logic here if desired, consistent with PromptCard
+        alert(`⚠️ ${data?.error || "Limit reached."}`);
         return;
       }
-
-      if (!res.ok) {
-        alert("❌ Something went wrong.");
-        return;
-      }
-
-      await navigator.clipboard.writeText(prompt.prompt);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-
     } catch (err) {
-      console.error("❌ Copy failed", err);
-      alert("❌ Failed to copy prompt.");
+      console.error("❌ Tracker error", err);
     }
   };
+
 
   const handleLike = async () => {
     if (!prompt._id) return;
@@ -146,7 +148,7 @@ export default function ModalPrompt({
 
             {/* 📄 Text Content */}
             <div className="flex-1 flex flex-col">
-              <div className="text-sm text-lime-400 mb-1">{prompt.category}</div>
+              <div className="text-sm text-lime-400 mb-1">{prompt.tool || prompt.category}</div>
               <h2 className="text-2xl font-bold mb-3">{prompt.title}</h2>
 
               <pre className="text-sm whitespace-pre-wrap bg-white/5 p-3 rounded-md border border-white/10 max-h-64 overflow-y-auto">

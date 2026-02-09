@@ -17,6 +17,18 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
 
   // Handle Copy Prompt
   const handleCopyPrompt = async () => {
+    // 1. Optimistic Copy
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("❌ Clipboard error", err);
+      alert("❌ Failed to copy prompt to clipboard.");
+      return;
+    }
+
+    // 2. Track Copy
     try {
       const res = await fetch(`/api/prompts/${_id}`, {
         method: "PATCH",
@@ -26,21 +38,11 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
 
       if (res.status === 403) {
         const data = await res.json();
-        alert(data?.error || "Limit reached.");
+        alert(`⚠️ ${data?.error || "Limit reached."}`);
         return;
       }
-
-      if (!res.ok) {
-        alert("❌ Something went wrong.");
-        return;
-      }
-
-      await navigator.clipboard.writeText(prompt);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("❌ Copy failed", err);
-      alert("❌ Failed to copy prompt.");
+      console.error("❌ Copy tracking failed", err);
     }
   };
 
