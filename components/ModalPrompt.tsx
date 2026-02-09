@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Clipboard, Check, Heart, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 type Prompt = {
   _id?: string;
@@ -42,8 +43,20 @@ export default function ModalPrompt({
 
   if (!prompt) return null;
 
+  const { data: session } = useSession();
+
   const handleCopy = async () => {
     if (!prompt._id) return;
+
+    // 0. Strict Guest Check (Client-side Cookie)
+    if (!session) {
+      const match = document.cookie.match(/(^| )guest_copy_count=([^;]+)/);
+      const limit = match ? parseInt(match[2]) : 0;
+      if (limit >= 2) {
+        alert("⚠️ Guest limit reached (2/2). Please login for more.");
+        return; // BLOCK COPY
+      }
+    }
 
     // 1. Optimistic Copy
     try {

@@ -44,6 +44,18 @@ export default function PromptCard({
     if (!_id) return;
 
     console.log("📋 Copying prompt:", _id);
+
+    // 0. Strict Guest Check (Client-side Cookie)
+    if (!session) {
+      const match = document.cookie.match(/(^| )guest_copy_count=([^;]+)/);
+      const limit = match ? parseInt(match[2]) : 0;
+      if (limit >= 2) {
+        setModalMessage("⚠️ Guest limit reached (2/2). Please login for more.");
+        setShowModal(true);
+        return; // BLOCK COPY
+      }
+    }
+
     // 1. Optimistic Copy (Fixes Safari/Mobile async clipboard issues)
     try {
       await navigator.clipboard.writeText(prompt);

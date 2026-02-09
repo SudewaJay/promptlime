@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Clipboard, Check, Heart, Share2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 interface Props {
   _id: string;
@@ -15,8 +16,19 @@ export default function PromptActions({ _id, likes = 0, shareUrl, prompt }: Prop
   const [likeCount, setLikeCount] = useState(likes);
   const [isLiked, setIsLiked] = useState(false);
 
+  const { data: session } = useSession();
+
   // Handle Copy Prompt
   const handleCopyPrompt = async () => {
+    // 0. Strict Guest Check (Client-side Cookie)
+    if (!session) {
+      const match = document.cookie.match(/(^| )guest_copy_count=([^;]+)/);
+      const limit = match ? parseInt(match[2]) : 0;
+      if (limit >= 2) {
+        alert("⚠️ Guest limit reached (2/2). Please login for more.");
+        return; // BLOCK COPY
+      }
+    }
     // 1. Optimistic Copy
     try {
       await navigator.clipboard.writeText(prompt);
