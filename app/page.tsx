@@ -5,7 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import PromptCard from "@/components/PromptCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ModalPrompt from "@/components/ModalPrompt";
+import PromptCardSkeleton from "@/components/PromptCardSkeleton";
+import dynamic from "next/dynamic";
+
+const ModalPrompt = dynamic(() => import("@/components/ModalPrompt"), { ssr: false });
 import { useSearch } from "@/context/SearchContext";
 import { SparklesCore } from "@/components/ui/sparkles";
 
@@ -246,8 +249,9 @@ export default function Home() {
                   <motion.div
                     key={`skeleton-${i}`}
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="h-48 bg-white/5 rounded-2xl animate-pulse"
-                  />
+                  >
+                    <PromptCardSkeleton />
+                  </motion.div>
                 ))
               ) : filteredPrompts.length === 0 ? (
                 <div className="col-span-1 md:col-span-2 text-center py-20 text-white/40">
@@ -265,6 +269,7 @@ export default function Home() {
                   >
                     <PromptCard
                       {...prompt}
+                      priority={index < 6}
                       onClick={() => setSelectedPrompt(prompt)}
                     />
                   </motion.div>

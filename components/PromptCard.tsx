@@ -15,6 +15,7 @@ interface PromptCardProps {
   prompt: string;
   image?: string;
   likes?: number;
+  priority?: boolean;
   onClick?: () => void;
 }
 
@@ -26,6 +27,7 @@ export default function PromptCard({
   prompt,
   image,
   likes = 0,
+  priority = false,
   onClick,
 }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
@@ -247,10 +249,12 @@ export default function PromptCard({
       {/* 🧩 Prompt Card */}
       <motion.div
         layout
+        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+        whileTap={{ scale: 0.98 }}
         onClick={onClick}
         role="button"
         tabIndex={0}
-        className="flex flex-row items-start gap-3 md:gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 active:scale-[0.98] cursor-pointer"
+        className="flex flex-row items-start gap-3 md:gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-lg hover:shadow-lime-500/20 transition-all duration-300 cursor-pointer"
       >
         {image && (
           <div className="relative group w-32 h-32 md:w-40 md:h-40 rounded-lg md:rounded-xl overflow-hidden shrink-0">
@@ -260,6 +264,7 @@ export default function PromptCard({
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               sizes="(max-width: 768px) 128px, 160px"
+              priority={priority}
             />
           </div>
         )}
