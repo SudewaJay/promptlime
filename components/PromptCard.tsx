@@ -185,7 +185,7 @@ export default function PromptCard({
               </h2>
               <p className="text-sm text-gray-300 mb-5">{modalMessage}</p>
 
-              {!session && modalMessage.includes("Limit") && (
+              {!session && modalMessage.toLowerCase().includes("limit") && (
                 <button
                   onClick={() => signIn("google")}
                   className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-4 py-2.5 rounded-full hover:bg-gray-100 w-full transition"
