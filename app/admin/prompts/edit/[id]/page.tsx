@@ -6,6 +6,12 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 
+type Tool = {
+    _id: string;
+    name: string;
+    slug: string;
+};
+
 export default function EditPromptPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     // Unwrap params using React.use() for Next.js 15+
@@ -16,13 +22,24 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
         category: "",
         prompt: "",
         image: "",
+        tool: "",
+        tags: "",
     });
+    const [tools, setTools] = useState<Tool[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        const fetchPrompt = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch Tools
+                const toolsRes = await fetch("/api/tools");
+                if (toolsRes.ok) {
+                    const toolsData = await toolsRes.json();
+                    setTools(Array.isArray(toolsData) ? toolsData : []);
+                }
+
+                // Fetch Prompt
                 const res = await fetch(`/api/prompts/${id}`);
                 const data = await res.json();
                 if (data.data) {
@@ -31,16 +48,18 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
                         category: data.data.category || "",
                         prompt: data.data.prompt || "",
                         image: data.data.image || "",
+                        tool: data.data.tool || "",
+                        tags: Array.isArray(data.data.tags) ? data.data.tags.join(", ") : "",
                     });
                 }
             } catch (error) {
-                console.error("Failed to fetch prompt", error);
+                console.error("Failed to fetch data", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchPrompt();
+        fetchData();
     }, [id]);
 
     const handleChange = (
@@ -54,10 +73,15 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
         setSaving(true);
 
         try {
+            const payload = {
+                ...form,
+                tags: form.tags.split(",").map(t => t.trim()).filter(Boolean),
+            };
+
             const res = await fetch(`/api/prompts/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
+                body: JSON.stringify(payload),
             });
 
             if (res.ok) {
@@ -97,23 +121,53 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
                     />
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-white/60 mb-2">Tool</label>
+                        <select
+                            name="tool"
+                            value={form.tool}
+                            onChange={handleChange}
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
+                        >
+                            <option value="">Select AI Tool</option>
+                            {tools.map((t) => (
+                                <option key={t._id} value={t.name}>{t.name}</option>
+                            ))}
+                            <option value="ChatGPT">ChatGPT (Default)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-white/60 mb-2">Category</label>
+                        <select
+                            name="category"
+                            value={form.category}
+                            onChange={handleChange}
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
+                        >
+                            <option value="">Select Category</option>
+                            <option value="Image Generation">Image Generation</option>
+                            <option value="UX Writing">UX Writing</option>
+                            <option value="Productivity">Productivity</option>
+                            <option value="Coding">Coding</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="SEO">SEO</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div>
-                    <label className="block text-sm font-medium text-white/60 mb-2">Category</label>
-                    <select
-                        name="category"
-                        value={form.category}
+                    <label className="block text-sm font-medium text-white/60 mb-2">Tags (comma separated)</label>
+                    <input
+                        name="tags"
+                        value={form.tags}
                         onChange={handleChange}
-                        required
+                        placeholder="e.g. funny, work, anime"
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
-                    >
-                        <option value="">Select Category</option>
-                        <option value="Image Generation">Image Generation</option>
-                        <option value="UX Writing">UX Writing</option>
-                        <option value="Productivity">Productivity</option>
-                        <option value="Coding">Coding</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="SEO">SEO</option>
-                    </select>
+                    />
                 </div>
 
                 <div>
