@@ -148,12 +148,12 @@ export default function Home() {
 
       <div className="fixed top-0 left-0 w-full h-[45vh] bg-gradient-to-b from-lime-400/40 to-transparent blur-3xl z-0 pointer-events-none" />
 
-      <main className="relative z-10 w-full pt-16 pb-12">
+      <main className="relative z-10 w-full pt-[85px] pb-12">
 
         {/* Top Controls: Tools & Toggles */}
         <div id="filter-sentinel" className="h-[1px] w-full pointer-events-none absolute top-[-1px] opacity-0" />
         <div
-          className={`sticky top-[58px] md:top-[64px] z-40 pt-2 pb-6 w-full transition-all duration-300 ${isSticky
+          className={`sticky top-[78px] md:top-[80px] z-40 pt-2 pb-6 w-full transition-all duration-300 ${isSticky
             ? "bg-[#0f0f0f]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/50"
             : "bg-transparent"
             }`}
