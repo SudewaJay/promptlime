@@ -1,6 +1,7 @@
 import connectToDatabase from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { getAllPrompts, createPrompt } from "@/lib/promptService";
+import SystemSetting from "@/models/SystemSetting";
 
 // GET: Fetch all prompts with filtering and sorting
 export async function GET(req: Request) {
@@ -12,6 +13,10 @@ export async function GET(req: Request) {
     const category = searchParams.get("category");
     const tag = searchParams.get("tag");
     const sort = searchParams.get("sort"); // 'trending' or 'date' (default)
+
+    // Fetch default tag setting
+    const setting = await SystemSetting.findOne({ key: "defaultTag" });
+    const defaultTag = setting ? setting.value : null;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = {};
@@ -25,7 +30,7 @@ export async function GET(req: Request) {
       sortOption = { views: -1, likes: -1, copyCount: -1 };
     }
 
-    const prompts = await getAllPrompts(query, sortOption);
+    const prompts = await getAllPrompts(query, sortOption, defaultTag);
 
     return NextResponse.json(prompts, { status: 200 });
   } catch (err) {
