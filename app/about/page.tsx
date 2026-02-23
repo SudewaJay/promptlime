@@ -64,7 +64,7 @@ export default function AboutPage() {
       <section style={{ paddingTop: 160, paddingBottom: 100, position: "relative", maxWidth: 1200, margin: "0 auto", padding: "160px 24px 100px" }}>
         <GlowOrb className="w-96 h-96 bg-lime-400" style={{ top: -100, right: -100, background: "#c8f135", width: 400, height: 400, position: "absolute" }} />
         <div style={{ position: "absolute", top: 0, right: -100, width: 400, height: 400, borderRadius: "50%", background: "#c8f135", filter: "blur(120px)", opacity: 0.12, pointerEvents: "none" }} />
-        <div style={{ maxWidth: 800 }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <Reveal>
             <span className="tag" style={{ marginBottom: 24, display: "inline-block" }}>🍋 About PromptLime</span>
           </Reveal>
@@ -81,7 +81,7 @@ export default function AboutPage() {
             </p>
           </Reveal>
           <Reveal delay={0.3}>
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
               <Link href="/"><button className="btn-primary">🚀 Explore Prompts</button></Link>
               <button className="btn-ghost">Our Mission ↓</button>
             </div>
