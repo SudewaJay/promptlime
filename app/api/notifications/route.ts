@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import clientPromise from "@/lib/mongodb";
 import Notification from "@/models/Notification";
-// import mongoose from "mongoose";
+import mongoose from "mongoose";
 
 export async function GET() {
     try {
@@ -13,6 +13,11 @@ export async function GET() {
         }
 
         await clientPromise; // Ensure DB connection
+
+        // If the user ID is not a valid ObjectId (e.g., 'admin'), return empty instead of crashing
+        if (!mongoose.Types.ObjectId.isValid(session.user.id)) {
+            return NextResponse.json({ notifications: [], unreadCount: 0 });
+        }
 
         // Fetch notifications for the logged-in user, sorted by newest first
         const notifications = await Notification.find({ userId: session.user.id })
@@ -49,6 +54,11 @@ export async function PATCH(req: Request) {
         }
 
         await clientPromise;
+
+        // If the user ID is not a valid ObjectId, we can't find their notifications
+        if (!mongoose.Types.ObjectId.isValid(session.user.id)) {
+            return NextResponse.json({ error: "Notification not found" }, { status: 404 });
+        }
 
         // Mark as read
         const updated = await Notification.findOneAndUpdate(

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const useInView = (threshold = 0.15): [React.RefObject<HTMLDivElement | null>, boolean] => {
   const ref = useRef<HTMLDivElement>(null);
@@ -55,21 +57,8 @@ export default function AboutPage() {
       `}</style>
       <div className="noise" />
 
-      {/* NAV */}
-      <nav className="nav-blur fixed top-0 left-0 right-0 z-50" style={{ padding: "16px 0" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 28, height: 28, background: "#c8f135", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 16 }}>🍋</span>
-            </div>
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 18 }}>PromptLime<span className="lime">.space</span></span>
-          </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <Link href="/" style={{ color: "rgba(232,232,240,0.6)", textDecoration: "none", fontSize: 14 }}>Home</Link>
-            <Link href="/about" style={{ color: "#c8f135", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>About</Link>
-          </div>
-        </div>
-      </nav>
+      {/* HEADER */}
+      <Header />
 
       {/* HERO */}
       <section style={{ paddingTop: 160, paddingBottom: 100, position: "relative", maxWidth: 1200, margin: "0 auto", padding: "160px 24px 100px" }}>
@@ -384,13 +373,7 @@ export default function AboutPage() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.07)", padding: "40px 24px", textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 12 }}>
-          <span style={{ fontSize: 18 }}>🍋</span>
-          <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 16 }}>PromptLime<span className="lime">.space</span></span>
-        </div>
-        <p style={{ fontSize: 13, color: "rgba(232,232,240,0.35)" }}>© {new Date().getFullYear()} PromptLime. Built for creators, by creators.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
