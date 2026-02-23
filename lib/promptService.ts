@@ -3,8 +3,6 @@ import Prompt from "@/models/Prompt";
 
 // ✅ Get all prompts with optional query and sort
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-// ✅ Get all prompts with optional query and sort
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getAllPrompts(query: any = {}, sort: any = { createdAt: -1 }, defaultTag: string | null = null) {
   // If a default tag exists AND we aren't filtering by a specific tag
   if (defaultTag && !query.tags) {

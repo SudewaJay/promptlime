@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
-const useInView = (threshold = 0.15) => {
-  const ref = useRef<any>(null);
+const useInView = (threshold = 0.15): [React.RefObject<HTMLDivElement | null>, boolean] => {
+  const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
@@ -13,7 +14,7 @@ const useInView = (threshold = 0.15) => {
   return [ref, inView];
 };
 
-const Reveal = ({ children, delay = 0, className = "" }: any) => {
+const Reveal = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => {
   const [ref, inView] = useInView();
   return (
     <div ref={ref} className={className} style={{
@@ -26,12 +27,11 @@ const Reveal = ({ children, delay = 0, className = "" }: any) => {
   );
 };
 
-const GlowOrb = ({ className, style }: any) => (
+const GlowOrb = ({ className, style }: { className?: string, style?: React.CSSProperties }) => (
   <div className={`absolute rounded-full blur-3xl opacity-20 pointer-events-none ${className}`} style={style} />
 );
 
 export default function AboutPage() {
-  const [copied, setCopied] = useState(false);
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#0a0a0f", color: "#e8e8f0", minHeight: "100vh", overflowX: "hidden" }}>
@@ -65,8 +65,8 @@ export default function AboutPage() {
             <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 18 }}>PromptLime<span className="lime">.space</span></span>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
-            <a href="/" style={{ color: "rgba(232,232,240,0.6)", textDecoration: "none", fontSize: 14 }}>Home</a>
-            <a href="/about" style={{ color: "#c8f135", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>About</a>
+            <Link href="/" style={{ color: "rgba(232,232,240,0.6)", textDecoration: "none", fontSize: 14 }}>Home</Link>
+            <Link href="/about" style={{ color: "#c8f135", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>About</Link>
           </div>
         </div>
       </nav>
@@ -93,7 +93,7 @@ export default function AboutPage() {
           </Reveal>
           <Reveal delay={0.3}>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-              <a href="/"><button className="btn-primary">🚀 Explore Prompts</button></a>
+              <Link href="/"><button className="btn-primary">🚀 Explore Prompts</button></Link>
               <button className="btn-ghost">Our Mission ↓</button>
             </div>
           </Reveal>
@@ -377,7 +377,7 @@ export default function AboutPage() {
               Explore curated prompts. Copy. Paste. Generate.
             </p>
             <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-              <a href="/"><button className="btn-primary" style={{ fontSize: 16, padding: "16px 36px" }}>🚀 Explore Prompts</button></a>
+              <Link href="/"><button className="btn-primary" style={{ fontSize: 16, padding: "16px 36px" }}>🚀 Explore Prompts</button></Link>
             </div>
           </Reveal>
         </div>
