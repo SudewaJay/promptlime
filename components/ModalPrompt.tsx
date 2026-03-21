@@ -37,11 +37,11 @@ export default function ModalPrompt({
   const { data: session } = useSession();
 
   const [copied, setCopied] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(prompt?.likes || 0);
   const [modalView, setModalView] = useState<"prompt" | "interstitial">("prompt");
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
 
   const isGemini = (prompt?.tool || prompt?.category || "").toLowerCase().includes("gemini");
@@ -55,8 +55,16 @@ export default function ModalPrompt({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "incrementView" }),
       });
+      
+      // Check if saved if session exists
+      if (session?.user?.id) {
+        fetch("/api/user/save-prompt/status?promptId=" + prompt._id)
+          .then(res => res.json())
+          .then(data => setIsSaved(data.isSaved))
+          .catch(() => {});
+      }
     }
-  }, [prompt]);
+  }, [prompt, session]);
 
   if (!prompt) return null;
 
@@ -103,20 +111,28 @@ export default function ModalPrompt({
   };
 
 
-  const handleLike = async () => {
+  const toggleSave = async () => {
     if (!prompt._id) return;
-    const action = isLiked ? "decrementLike" : "incrementLike";
+    if (!session) {
+      signIn("google");
+      return;
+    }
 
+    setIsSaving(true);
     try {
-      await fetch(`/api/prompts/${prompt._id}`, {
-        method: "PATCH",
+      const res = await fetch("/api/user/save-prompt", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ promptId: prompt._id }),
       });
-      setIsLiked(!isLiked);
-      setLikeCount((prev) => prev + (isLiked ? -1 : 1));
-    } catch (err) {
-      console.error("❌ Like error", err);
+      const data = await res.json();
+      if (data.success) {
+        setIsSaved(data.isSaved);
+      }
+    } catch (error) {
+      console.error("Failed to save prompt:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -249,16 +265,17 @@ export default function ModalPrompt({
                         )}
                       </button>
 
-                      {/* ❤️ Like */}
+                      {/* ❤️ Save to Profile */}
                       <button
-                        onClick={handleLike}
-                        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
-                          ? "bg-red-500/80 text-white"
-                          : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+                        onClick={toggleSave}
+                        disabled={isSaving}
+                        className={`flex items-center gap-2 text-sm px-4 py-2 rounded-full transition-all ${isSaved
+                          ? "bg-lime-400 text-black font-bold"
+                          : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white"
                           }`}
                       >
-                        <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
-                        {likeCount}
+                        <Heart size={18} fill={isSaved ? "currentColor" : "none"} className={isSaving ? "animate-pulse" : ""} />
+                        {isSaved ? "Saved to Profile" : "Save to Profile"}
                       </button>
 
                       {/* 🔗 Share */}
