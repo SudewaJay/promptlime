@@ -6,6 +6,7 @@ import PromptCard from "@/components/PromptCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptCardSkeleton from "@/components/PromptCardSkeleton";
+import dynamic from "next/dynamic";
 const ModalPrompt = dynamic(() => import("@/components/ModalPrompt"), { ssr: false });
 import { useSearch } from "@/context/SearchContext";
 import { SparklesCore } from "@/components/ui/sparkles";
@@ -43,7 +44,7 @@ export default function Home() {
   // States suitable for server-side filtering
   const [activeTab, setActiveTab] = useState<"trending" | "all">("trending");
   const [activeTool, setActiveTool] = useState<string>("All");
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeTag] = useState<string | null>(null);
   
   const [activeStyles, setActiveStyles] = useState<string[]>([]);
   const [activeUseCases, setActiveUseCases] = useState<string[]>([]);
@@ -86,8 +87,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
-  // Derived unique tags from loaded prompts (or could fetch from API)
-  const [uniqueTags, setUniqueTags] = useState<string[]>([]);
+
 
   // Fetch Tools
   useEffect(() => {
@@ -134,10 +134,7 @@ export default function Home() {
           if (p.tags && Array.isArray(p.tags)) {
             p.tags.forEach(t => tags.add(t));
           }
-        });
-        setUniqueTags(Array.from(tags));
-
-      } catch (err) {
+        });      } catch (err) {
         console.error("❌ Failed to fetch prompts", err);
       } finally {
         setLoading(false);

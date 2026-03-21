@@ -38,7 +38,6 @@ export default function PromptCard({
   const [modalMessage, setModalMessage] = useState("");
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [showInterstitialModal, setShowInterstitialModal] = useState(false);
 
   const { data: session } = useSession();
@@ -283,20 +282,7 @@ export default function PromptCard({
         </div>
       )}
 
-      {/* 🍞 Toast Notification */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: 50, x: "-50%" }}
-            className="fixed bottom-6 left-1/2 z-[10000] bg-[#1a1a1a] border border-white/20 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-sm font-medium whitespace-nowrap"
-          >
-            <Check size={16} className="text-lime-400" />
-            {toastMessage}
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* 🚀 Interstitial Modal */}
       <AnimatePresence>

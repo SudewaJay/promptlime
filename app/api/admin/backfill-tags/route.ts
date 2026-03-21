@@ -6,7 +6,7 @@ const STYLES = ["cinematic", "anime", "ghibli", "pixar", "watercolor", "oil-pain
 const USE_CASES = ["self-portrait", "product", "landscape", "group", "pet", "food", "portrait"];
 const MOODS = ["dark", "vibrant", "warm", "dreamy", "retro", "minimal"];
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     await connectToDatabase();
     
