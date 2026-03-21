@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/authOptions";
 import { redirect } from "next/navigation";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
+import slugify from "slugify";
 
 export default async function ProfileRedirect() {
   const session = await getServerSession(authOptions);
