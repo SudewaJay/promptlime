@@ -3,9 +3,15 @@ import connectToDatabase from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
 import { uploadToR2 } from "@/lib/r2";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const debug = searchParams.get("debug") === "true";
+
     await connectToDatabase();
+    
+    // Check total count to see if we're even connected correctly
+    const totalCount = await Prompt.countDocuments();
     
     // 1. Fetch all prompts where the image is still a Pinterest URL (starts with http)
     const prompts = await Prompt.find({
@@ -13,10 +19,13 @@ export async function GET() {
     });
 
     const results = {
-      total: prompts.length,
+      message: "Migration Status",
+      database_total: totalCount,
+      to_migrate: prompts.length,
       success: 0,
       failed: 0,
       errors: [] as string[],
+      samples: debug ? prompts.slice(0, 3).map(p => ({ id: p._id, title: p.title, image: p.image })) : [],
     };
 
     for (const prompt of prompts) {

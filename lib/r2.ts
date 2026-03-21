@@ -36,11 +36,17 @@ export function getImageUrl(path: string, width = 800, quality = 85) {
   // Remove https:// if user provided it
   const domain = rawDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
   
-  // If it's already a full URL (like Pinterest), return it as is (fallback during migration)
+  // If it's already a full URL (like Pinterest), return it as is
   if (path.startsWith("http")) return path;
 
   // Clean path (remove leading slash if present)
   const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  
+  // R2 public development URLs (r2.dev) do NOT support /cdn-cgi/image/ transformations.
+  // Resizing only works on custom domains proxied through Cloudflare.
+  if (domain.includes("r2.dev")) {
+    return `https://${domain}/${cleanPath}`;
+  }
   
   return `https://${domain}/cdn-cgi/image/width=${width},quality=${quality},format=auto/${cleanPath}`;
 }
