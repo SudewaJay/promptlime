@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
-import SafeImage from "@/components/SafeImage";
 import { getImageUrl } from "@/lib/r2";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 type Tool = {
     _id: string;
@@ -34,7 +34,6 @@ export default function CreatePromptPage() {
 
     const [tools, setTools] = useState<Tool[]>([]);
     const [saving, setSaving] = useState(false);
-    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const fetchTools = async () => {
@@ -47,32 +46,6 @@ export default function CreatePromptPage() {
         fetchTools();
     }, []);
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setUploading(true);
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const res = await fetch("/api/admin/upload", {
-                method: "POST",
-                body: formData,
-            });
-            const data = await res.json();
-            if (data.fileKey) {
-                setForm(prev => ({ ...prev, image: data.fileKey }));
-            } else {
-                alert("Upload failed");
-            }
-        } catch (error) {
-            console.error("Upload error", error);
-            alert("Error uploading file.");
-        } finally {
-            setUploading(false);
-        }
-    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -235,41 +208,11 @@ export default function CreatePromptPage() {
 
                 <div className="space-y-4">
                     <label className="block text-sm font-medium text-white/60 mb-2">Image</label>
-                    <div className="flex flex-col md:flex-row gap-6 items-start">
-                        {form.image && (
-                            <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-white/10 shrink-0">
-                                <SafeImage
-                                    src={getImageUrl(form.image, 200)}
-                                    alt="Preview"
-                                    fallbackText={form.title}
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                        )}
-                        <div className="flex-1 w-full space-y-3">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="block w-full text-sm text-white/60
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-lime-400 file:text-black
-                                    hover:file:bg-lime-300 transition
-                                    cursor-pointer"
-                            />
-                            {uploading && <p className="text-xs text-lime-400 animate-pulse">Uploading to R2...</p>}
-                            <input
-                                name="image"
-                                value={form.image}
-                                onChange={handleChange}
-                                placeholder="Or enter manual R2 key / URL"
-                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
-                            />
-                        </div>
-                    </div>
+                    <ImageUpload 
+                        initialValue={form.image ? getImageUrl(form.image, 400) : ""}
+                        onUploadSuccess={(url) => setForm(prev => ({ ...prev, image: url }))}
+                        onRemove={() => setForm(prev => ({ ...prev, image: "" }))}
+                    />
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3">

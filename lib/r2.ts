@@ -36,14 +36,29 @@ export function getImageUrl(path: string, width = 800, quality = 85) {
   // Remove https:// if user provided it
   const domain = rawDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
   
-  // If it's already a full URL (like Pinterest), return it as is
-  if (path.startsWith("http")) return path;
+  // If it's already a full URL
+  if (path.startsWith("http")) {
+    // If it's NOT our domain (e.g. pinterest), return as-is
+    if (!path.includes(domain)) return path;
+    
+    // If it IS our domain but already has resizing, return as-is
+    if (path.includes("/cdn-cgi/image/")) return path;
 
-  // Clean path (remove leading slash if present)
+    // If it IS our domain but raw, inject resizing
+    // Example: https://images.promptlime.space/prompts/xyz.jpg -> https://images.promptlime.space/cdn-cgi/image/.../prompts/xyz.jpg
+    const url = new URL(path);
+    const key = url.pathname.startsWith("/") ? url.pathname.slice(1) : url.pathname;
+    
+    // Skip resizing for r2.dev dev domains as they don't support it
+    if (domain.includes("r2.dev")) return path;
+
+    return `https://${domain}/cdn-cgi/image/width=${width},quality=${quality},format=auto/${key}`;
+  }
+
+  // Handle keys (e.g. "prompts/xyz.jpg")
   const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   
   // R2 public development URLs (r2.dev) do NOT support /cdn-cgi/image/ transformations.
-  // Resizing only works on custom domains proxied through Cloudflare.
   if (domain.includes("r2.dev")) {
     return `https://${domain}/${cleanPath}`;
   }
