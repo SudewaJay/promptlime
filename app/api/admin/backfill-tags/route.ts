@@ -76,8 +76,9 @@ export async function GET() {
       success: true,
       message: `Backfilled tags for ${updatedCount} out of ${prompts.length} prompts.`,
     });
-  } catch (error: any) {
-    console.error("Backfill error:", error);
-    return NextResponse.json({ success: false, error: error.message, stack: error.stack }, { status: 500 });
+  } catch (error) {
+    const err = error as Error;
+    console.error("Backfill error:", err);
+    return NextResponse.json({ success: false, error: err.message, stack: err.stack }, { status: 500 });
   }
 }
