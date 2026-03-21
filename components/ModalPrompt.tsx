@@ -33,7 +33,7 @@ export default function ModalPrompt({
   const [copied, setCopied] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(prompt?.likes || 0);
-  const [toastMessage, setToastMessage] = useState("");
+  const [modalView, setModalView] = useState<"prompt" | "interstitial">("prompt");
 
   const isGemini = (prompt?.tool || prompt?.category || "").toLowerCase().includes("gemini");
   const platformName = isGemini ? "Gemini" : "ChatGPT";
@@ -136,16 +136,14 @@ export default function ModalPrompt({
 
     try {
       await navigator.clipboard.writeText(prompt.prompt);
-      setToastMessage(`Prompt copied — just paste it (Ctrl+V / ⌘V) and hit send`);
-      setTimeout(() => setToastMessage(""), 4000);
-
+      
       fetch(`/api/prompts/${prompt._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "incrementCopyCount" }),
       }).catch(console.error);
 
-      window.open(platformUrl, "_blank", "noopener,noreferrer");
+      setModalView("interstitial");
     } catch (err) {
       console.error("❌ Clipboard error", err);
       alert("❌ Failed to copy to clipboard.");
@@ -154,19 +152,6 @@ export default function ModalPrompt({
 
   return (
     <AnimatePresence>
-      {/* 🍞 Toast Notification for Modal */}
-      {toastMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: 50, x: "-50%" }}
-          animate={{ opacity: 1, y: 0, x: "-50%" }}
-          exit={{ opacity: 0, y: 50, x: "-50%" }}
-          className="fixed bottom-6 left-1/2 z-[10000] bg-[#1a1a1a] border border-white/20 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-sm font-medium whitespace-nowrap"
-        >
-          <Check size={16} className="text-lime-400" />
-          {toastMessage}
-        </motion.div>
-      )}
-
       <motion.div
         key="modal"
         initial={{ opacity: 0 }}
@@ -192,100 +177,148 @@ export default function ModalPrompt({
             <X size={20} />
           </button>
 
-          {/* 🧩 Layout: Image + Content */}
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* 🖼️ Image */}
-            {prompt.image && (
-              <div className="relative w-full md:w-60 h-64 md:h-64 rounded-xl overflow-hidden">
-                <Image
-                  src={prompt.image}
-                  alt={prompt.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 240px"
-                  priority
-                />
-              </div>
-            )}
+          {modalView === "prompt" ? (
+            /* 🧩 Layout: Image + Content */
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* 🖼️ Image */}
+              {prompt.image && (
+                <div className="relative w-full md:w-60 h-64 md:h-64 rounded-xl overflow-hidden shrink-0">
+                  <Image
+                    src={prompt.image}
+                    alt={prompt.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 240px"
+                    priority
+                  />
+                </div>
+              )}
 
-            {/* 📄 Text Content */}
-            <div className="flex-1 flex flex-col">
-              <div className="text-sm text-lime-400 mb-1">{prompt.tool || prompt.category}</div>
-              <h2 className="text-2xl font-bold mb-3">{prompt.title}</h2>
-              <PromptDisplay text={prompt.prompt} />
+              {/* 📄 Text Content */}
+              <div className="flex-1 flex flex-col">
+                <div className="text-sm text-lime-400 mb-1">{prompt.tool || prompt.category}</div>
+                <h2 className="text-2xl font-bold mb-3">{prompt.title}</h2>
+                <PromptDisplay text={prompt.prompt} />
 
-              {/* 🎛️ Actions and Stats */}
-              <div className="flex flex-col mt-4 w-full gap-3">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 w-full">
-                  {/* Buttons */}
-                  <div className="flex gap-3">
-                    {/* 📋 Copy */}
-                    <button
-                      onClick={handleCopy}
-                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
-                        ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
-                        : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
-                        }`}
-                    >
-                      {copied ? (
-                        <span className="flex items-center gap-1">
-                          <Check size={16} /> Copied
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          <Clipboard size={16} /> Copy
+                {/* 🎛️ Actions and Stats */}
+                <div className="flex flex-col mt-4 w-full gap-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 w-full">
+                    {/* Buttons */}
+                    <div className="flex gap-3">
+                      {/* 📋 Copy */}
+                      <button
+                        onClick={handleCopy}
+                        className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
+                          ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
+                          : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
+                          }`}
+                      >
+                        {copied ? (
+                          <span className="flex items-center gap-1">
+                            <Check size={16} /> Copied
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            <Clipboard size={16} /> Copy
+                          </span>
+                        )}
+                      </button>
+
+                      {/* ❤️ Like */}
+                      <button
+                        onClick={handleLike}
+                        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
+                          ? "bg-red-500/80 text-white"
+                          : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+                          }`}
+                      >
+                        <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
+                        {likeCount}
+                      </button>
+
+                      {/* 🔗 Share */}
+                      <button
+                        onClick={handleShare}
+                        className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
+                      >
+                        <Share2 size={16} /> Share
+                      </button>
+                    </div>
+
+                    {/* 📊 Stats */}
+                    <div className="text-xs text-white/50 flex gap-4">
+                      <span>📋 {prompt.copyCount ?? 0} copies</span>
+                      <span>👁️ {prompt.views ?? 0} views</span>
+                      {prompt.createdAt && (
+                        <span>
+                          🕒{" "}
+                          {formatDistanceToNow(new Date(prompt.createdAt), {
+                            addSuffix: true,
+                          })}
                         </span>
                       )}
-                    </button>
-
-                    {/* ❤️ Like */}
-                    <button
-                      onClick={handleLike}
-                      className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
-                        ? "bg-red-500/80 text-white"
-                        : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
-                        }`}
-                    >
-                      <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
-                      {likeCount}
-                    </button>
-
-                    {/* 🔗 Share */}
-                    <button
-                      onClick={handleShare}
-                      className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
-                    >
-                      <Share2 size={16} /> Share
-                    </button>
+                    </div>
                   </div>
 
-                  {/* 📊 Stats */}
-                  <div className="text-xs text-white/50 flex gap-4">
-                    <span>📋 {prompt.copyCount ?? 0} copies</span>
-                    <span>👁️ {prompt.views ?? 0} views</span>
-                    {prompt.createdAt && (
-                      <span>
-                        🕒{" "}
-                        {formatDistanceToNow(new Date(prompt.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                    )}
+                  {/* 🚀 Platform CTA */}
+                  <div>
+                    <button
+                      onClick={handleOpenPlatform}
+                      className="px-4 py-1.5 rounded-full text-sm font-medium border border-white/10 text-white hover:bg-white/10 hover:border-white/30 transition-all flex items-center gap-1 w-fit"
+                    >
+                      Open in {platformName} &rarr;
+                    </button>
                   </div>
-                </div>
-
-                {/* 🚀 Platform CTA */}
-                <div>
-                  <button
-                    onClick={handleOpenPlatform}
-                    className="px-4 py-1.5 rounded-full text-sm font-medium border border-white/10 text-white hover:bg-white/10 hover:border-white/30 transition-all flex items-center gap-1 w-fit"
-                  >
-                    Open in {platformName} &rarr;
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            /* 🚀 Interstitial View */
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center text-center p-2 sm:p-6"
+            >
+              <div className="bg-lime-500/20 text-lime-400 px-4 py-1.5 rounded-full font-medium text-sm mb-6 flex items-center gap-2">
+                <Check size={16} /> Prompt copied to clipboard
+              </div>
+              
+              <div className="mb-2">
+                <span className="text-xs font-semibold bg-white/10 px-2 flex items-center gap-1 py-1 rounded text-white/80 uppercase tracking-widest">
+                  {platformName}
+                </span>
+              </div>
+              
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ready to generate</h2>
+              
+              <p className="text-gray-300 md:text-lg mb-8 max-w-lg mx-auto">
+                Open {platformName}, click the input box, press <kbd className="bg-white/10 border border-white/20 px-2 py-0.5 rounded-md text-sm mx-1 font-sans">⌘V</kbd> (Mac) or <kbd className="bg-white/10 border border-white/20 px-2 py-0.5 rounded-md text-sm mx-1 font-sans">Ctrl+V</kbd> (Windows) to paste your prompt &mdash; then add your photo and hit send.
+              </p>
+
+              <div className="w-full max-w-lg mb-8 bg-black/40 border border-white/10 p-5 rounded-xl text-left text-sm text-gray-300 italic relative">
+                <span className="text-lime-400/50 absolute top-2 right-4 text-3xl font-serif">&quot;</span>
+                {prompt.prompt.slice(0, 100)}{prompt.prompt.length > 100 ? '...' : ''}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                <button 
+                  onClick={() => {
+                    window.open(platformUrl, '_blank');
+                    onClose();
+                  }}
+                  className="flex-1 bg-white text-black font-semibold py-3 px-6 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  Open {platformName} &rarr;
+                </button>
+                <button 
+                  onClick={() => setModalView("prompt")}
+                  className="flex-1 bg-white/10 text-white font-medium py-3 px-6 rounded-full hover:bg-white/20 border border-white/10 transition-colors"
+                >
+                  Back
+                </button>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
