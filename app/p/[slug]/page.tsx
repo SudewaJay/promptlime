@@ -39,7 +39,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SharedPromptPage({ params }: PageProps) {
   const { slug } = await params;
   await connectToDatabase();
-  const prompt = await Prompt.findOne({ slug }).lean();
+  const prompt = (await Prompt.findOne({ slug }).lean()) as {
+    _id: string;
+    title: string;
+    prompt: string;
+    image?: string;
+    tool?: string;
+    slug?: string;
+  } | null;
 
   if (!prompt) notFound();
 
