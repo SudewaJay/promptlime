@@ -4,9 +4,10 @@ import Prompt from "@/models/Prompt";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptDisplay from "@/components/PromptDisplay";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getImageUrl } from "@/lib/r2";
+import SafeImage from "@/components/SafeImage";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -59,17 +60,17 @@ export default async function SharedPromptPage({ params }: PageProps) {
             {/* Image Section */}
             {prompt.image && (
               <div className="relative w-full md:w-1/2 aspect-square">
-                <Image
-                  src={prompt.image}
+                <SafeImage
+                  src={getImageUrl(prompt.image, 800)}
                   alt={prompt.title}
+                  fallbackText={prompt.title}
                   fill
                   className="object-cover"
                   priority
                 />
               </div>
             )}
-
-            {/* Content Section */}
+  {/* Content Section */}
             <div className={`p-8 flex flex-col justify-center ${prompt.image ? "md:w-1/2" : "w-full"}`}>
               <div className="text-lime-400 font-medium text-sm mb-2 uppercase tracking-widest">
                 {prompt.tool} Prompt

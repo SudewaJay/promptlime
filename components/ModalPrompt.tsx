@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Clipboard, Check, Heart, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import Image from "next/image";
 import { useSession } from "next-auth/react";
 import PromptDisplay from "./PromptDisplay";
 import ShareSheet from "./ShareSheet";
 import slugify from "slugify";
+import { getImageUrl } from "@/lib/r2";
+import SafeImage from "./SafeImage";
 
 type Prompt = {
   _id?: string;
@@ -203,9 +204,10 @@ export default function ModalPrompt({
               {/* 🖼️ Image */}
               {prompt.image && (
                 <div className="relative w-full md:w-60 h-64 md:h-64 rounded-xl overflow-hidden shrink-0">
-                  <Image
-                    src={prompt.image}
+                  <SafeImage
+                    src={getImageUrl(prompt.image, 800)}
                     alt={prompt.title}
+                    fallbackText={prompt.title}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 240px"

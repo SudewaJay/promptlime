@@ -5,9 +5,11 @@ import { useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Share2, Clipboard, Check, X, Flag } from "lucide-react";
-import Image from "next/image";
+import NextImage from "next/image";
 import ShareSheet from "./ShareSheet";
 import slugify from "slugify";
+import { getImageUrl } from "@/lib/r2";
+import SafeImage from "./SafeImage";
 
 interface PromptCardProps {
   _id?: string;
@@ -240,7 +242,7 @@ export default function PromptCard({
                   onClick={() => signIn("google")}
                   className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-4 py-2.5 rounded-full hover:bg-gray-100 w-full transition"
                 >
-                  <Image
+                  <NextImage
                     src="https://www.svgrepo.com/show/475656/google-color.svg"
                     alt="Google"
                     width={20}
@@ -381,9 +383,10 @@ export default function PromptCard({
       >
         {image && (
           <div className="relative group w-32 h-32 md:w-40 md:h-40 rounded-lg md:rounded-xl overflow-hidden shrink-0">
-            <Image
-              src={image}
+            <SafeImage
+              src={getImageUrl(image, 400)}
               alt={title}
+              fallbackText={title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               sizes="(max-width: 768px) 128px, 160px"

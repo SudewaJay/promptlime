@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'pin.it', // Pinterest short links
       },
+      {
+        protocol: 'https',
+        hostname: 'images.promptlime.space', // Cloudflare R2
+      },
     ],
   },
 
