@@ -14,6 +14,7 @@ export interface IPrompt extends Document {
   copyCount: number;
   likes: number;
   views: number;
+  slug?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,7 @@ const PromptSchema = new Schema<IPrompt>(
     copyCount: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
+    slug: { type: String, unique: true, sparse: true, index: true },
   },
   {
     timestamps: true,

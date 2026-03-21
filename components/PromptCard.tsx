@@ -6,6 +6,8 @@ import { useSession, signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Share2, Clipboard, Check, X, Flag } from "lucide-react";
 import Image from "next/image";
+import ShareSheet from "./ShareSheet";
+import slugify from "slugify";
 
 interface PromptCardProps {
   _id?: string;
@@ -15,6 +17,7 @@ interface PromptCardProps {
   prompt: string;
   image?: string;
   likes?: number;
+  slug?: string;
   priority?: boolean;
   onClick?: () => void;
 }
@@ -27,6 +30,7 @@ export default function PromptCard({
   prompt,
   image,
   likes = 0,
+  slug,
   priority = false,
   onClick,
 }: PromptCardProps) {
@@ -39,6 +43,7 @@ export default function PromptCard({
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
   const [showInterstitialModal, setShowInterstitialModal] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
 
   const { data: session } = useSession();
 
@@ -129,16 +134,25 @@ export default function PromptCard({
     e.stopPropagation();
     if (!_id) return;
 
-    const shareUrl = `${window.location.origin}/prompt/${_id}`;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setModalMessage("🔗 Prompt link copied!");
-      setShowModal(true);
-    } catch (err) {
-      console.error("❌ Share failed", err);
-      setModalMessage("❌ Failed to share prompt.");
-      setShowModal(true);
+    const finalSlug = slug || slugify(title, { lower: true, strict: true });
+    const shareUrl = `${window.location.origin}/p/${finalSlug}`;
+    const shareTitle = `${title} — PromptLime`;
+    const shareText = `Check out this AI image prompt: ${title}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        console.log("Native share failed", err);
+      }
     }
+
+    setShowShareSheet(true);
   };
 
   const handleReport = async () => {
@@ -451,6 +465,15 @@ export default function PromptCard({
           </div>
         </div>
       </motion.div>
+
+      {/* 📤 Share Sheet */}
+      <ShareSheet
+        isOpen={showShareSheet}
+        onClose={() => setShowShareSheet(false)}
+        shareUrl={`${window.location.origin}/p/${slug || slugify(title, { lower: true, strict: true })}`}
+        shareTitle={title}
+        shareText={`Check out this AI image prompt: ${title}`}
+      />
     </>
   );
 }

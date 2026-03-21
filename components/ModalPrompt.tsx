@@ -7,6 +7,8 @@ import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import PromptDisplay from "./PromptDisplay";
+import ShareSheet from "./ShareSheet";
+import slugify from "slugify";
 
 type Prompt = {
   _id?: string;
@@ -19,6 +21,7 @@ type Prompt = {
   likes?: number;
   copyCount?: number;
   views?: number;
+  slug?: string;
 };
 
 export default function ModalPrompt({
@@ -34,6 +37,8 @@ export default function ModalPrompt({
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(prompt?.likes || 0);
   const [modalView, setModalView] = useState<"prompt" | "interstitial">("prompt");
+  const [showShareSheet, setShowShareSheet] = useState(false);
+
 
   const isGemini = (prompt?.tool || prompt?.category || "").toLowerCase().includes("gemini");
   const platformName = isGemini ? "Gemini" : "ChatGPT";
@@ -113,13 +118,28 @@ export default function ModalPrompt({
 
   const handleShare = async () => {
     if (!prompt._id) return;
-    const url = `${window.location.origin}/prompt/${prompt._id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      alert("🔗 Link copied!");
-    } catch (err) {
-      console.error("❌ Share failed", err);
+    
+    // Generate share data
+    // Use prompt.slug if available, otherwise generate it on the fly for the URL
+    const finalSlug = prompt.slug || slugify(prompt.title, { lower: true, strict: true });
+    const shareUrl = `${window.location.origin}/p/${finalSlug}`;
+    const shareTitle = `${prompt.title} — PromptLime`;
+    const shareText = `Check out this AI image prompt: ${prompt.title}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        console.log("Native share failed", err);
+      }
     }
+
+    setShowShareSheet(true);
   };
 
   const handleOpenPlatform = async () => {
@@ -321,6 +341,14 @@ export default function ModalPrompt({
           )}
         </motion.div>
       </motion.div>
+
+      {/* 📤 Share Sheet */}
+      <ShareSheet
+        isOpen={showShareSheet}
+        onClose={() => setShowShareSheet(false)}
+        shareUrl={prompt ? `${window.location.origin}/p/${prompt.slug || slugify(prompt.title, { lower: true, strict: true })}` : ""}
+        shareText={`Check out this AI image prompt: ${prompt?.title}`}
+      />
     </AnimatePresence>
   );
 }
