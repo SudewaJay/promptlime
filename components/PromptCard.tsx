@@ -471,7 +471,6 @@ export default function PromptCard({
         isOpen={showShareSheet}
         onClose={() => setShowShareSheet(false)}
         shareUrl={`${window.location.origin}/p/${slug || slugify(title, { lower: true, strict: true })}`}
-        shareTitle={title}
         shareText={`Check out this AI image prompt: ${title}`}
       />
     </>
