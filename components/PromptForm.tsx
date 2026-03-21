@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ImageUpload from "./admin/ImageUpload";
+import { getImageUrl } from "@/lib/r2";
 
 type Tool = {
   _id: string;
@@ -191,13 +193,14 @@ export default function PromptForm() {
         className="w-full mb-3 px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/50 border border-white/20"
       />
 
-      <input
-        name="image"
-        value={form.image}
-        onChange={handleChange}
-        placeholder="Image URL (optional)"
-        className="w-full mb-3 px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/50 border border-white/20"
-      />
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-white/60 mb-2">Image</label>
+        <ImageUpload 
+          initialValue={form.image ? getImageUrl(form.image, 400) : ""}
+          onUploadSuccess={(url) => setForm(prev => ({ ...prev, image: url }))}
+          onRemove={() => setForm(prev => ({ ...prev, image: "" }))}
+        />
+      </div>
 
       <button
         type="submit"
