@@ -13,6 +13,7 @@ interface ExtendedUser {
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  username?: string | null;
   isPro?: boolean;
   createdAt?: Date | string;
 }
@@ -277,11 +278,11 @@ export default function Header() {
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>
                       </div>
                       <Link
-                        href="/profile"
+                        href={user.username ? `/u/${user.username}` : "/profile"}
                         onClick={() => setShowDropdown(false)}
                         className="block px-4 py-2 text-sm text-white hover:bg-lime-500/10 hover:text-lime-400 transition"
                       >
-                        View Profile
+                        My Profile
                       </Link>
                       {/* Copy Count Mobile Logic handled in bottom nav or hidden */}
                       <button
@@ -408,7 +409,7 @@ export default function Header() {
 
           {/* 👤 Profile */}
           {user ? (
-            <Link href="/profile" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
+            <Link href={user.username ? `/u/${user.username}` : "/profile"} className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
               <div className={`rounded-full border border-transparent ${isPro ? "ring-1 ring-yellow-400" : ""}`}>
                 <Image
                   src={user.image || "/default-avatar.png"}

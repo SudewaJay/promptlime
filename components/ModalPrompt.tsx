@@ -10,6 +10,8 @@ import ShareSheet from "./ShareSheet";
 import slugify from "slugify";
 import { getImageUrl } from "@/lib/r2";
 import SafeImage from "./SafeImage";
+import SubmitResultModal from "./SubmitResultModal";
+import { signIn } from "next-auth/react";
 
 type Prompt = {
   _id?: string;
@@ -39,6 +41,7 @@ export default function ModalPrompt({
   const [likeCount, setLikeCount] = useState(prompt?.likes || 0);
   const [modalView, setModalView] = useState<"prompt" | "interstitial">("prompt");
   const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
 
   const isGemini = (prompt?.tool || prompt?.category || "").toLowerCase().includes("gemini");
@@ -265,6 +268,20 @@ export default function ModalPrompt({
                       >
                         <Share2 size={16} /> Share
                       </button>
+
+                      {/* 📤 Submit Result */}
+                      <button
+                        onClick={() => {
+                          if (!session) {
+                            signIn("google");
+                            return;
+                          }
+                          setShowSubmitModal(true);
+                        }}
+                        className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-lime-500/10 text-lime-400 hover:bg-lime-500/20 border border-lime-500/20 transition font-bold"
+                      >
+                        Submit Result
+                      </button>
                     </div>
 
                     {/* 📊 Stats */}
@@ -351,6 +368,14 @@ export default function ModalPrompt({
         shareUrl={prompt ? `${window.location.origin}/p/${prompt.slug || slugify(prompt.title, { lower: true, strict: true })}` : ""}
         shareText={`Check out this AI image prompt: ${prompt?.title}`}
       />
+      {/* 📤 Submit Result Modal */}
+      {showSubmitModal && prompt?._id && (
+        <SubmitResultModal
+          promptId={prompt._id}
+          promptTitle={prompt.title}
+          onClose={() => setShowSubmitModal(false)}
+        />
+      )}
     </AnimatePresence>
   );
 }
