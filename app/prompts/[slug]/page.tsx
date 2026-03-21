@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import dbConnect from "@/lib/db";
+import dbConnect from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
-import { getAllSeoCombinations, SEO_STYLES, SEO_PLATFORMS } from "@/lib/seo-mapping";
+import { getAllSeoCombinations } from "@/lib/seo-mapping";
 import LandingPageTemplate from "@/components/LandingPageTemplate";
 
 // 1. Static generation for all combinations
@@ -81,7 +81,8 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     <LandingPageTemplate 
       style={combo.style} 
       platform={combo.platform} 
-      prompts={prompts} 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      prompts={prompts as unknown as any[]} 
     />
   );
 }

@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import dbConnect from "@/lib/db";
+import dbConnect from "@/lib/mongodb";
 import Prompt from "@/models/Prompt";
 import { getAllSeoCombinations } from "@/lib/seo-mapping";
 

@@ -24,7 +24,7 @@ export const SEO_PLATFORMS = [
 ];
 
 export function getAllSeoCombinations() {
-  const combinations: { slug: string; style: any; platform: any }[] = [];
+  const combinations: { slug: string; style: typeof SEO_STYLES[0]; platform: typeof SEO_PLATFORMS[0] }[] = [];
   for (const style of SEO_STYLES) {
     for (const platform of SEO_PLATFORMS) {
       combinations.push({

@@ -1,16 +1,26 @@
 "use client";
 
-import { use } from "react";
-import { IPrompt } from "@/models/Prompt";
-import PromptCard from "@/components/PromptCard";
-import { SEO_STYLES, SEO_PLATFORMS, getAllSeoCombinations } from "@/lib/seo-mapping";
+import { SEO_STYLES } from "@/lib/seo-mapping";
 import Link from "next/link";
 import { ArrowLeft, Sparkles, Wand2, Search } from "lucide-react";
+import PromptCard from "./PromptCard";
+
+interface SEOItem {
+  slug: string;
+  name: string;
+  keyword: string;
+}
 
 interface LandingPageProps {
-  style: any;
-  platform: any;
-  prompts: any[];
+  style: SEOItem;
+  platform: SEOItem;
+  prompts: {
+    _id: string; 
+    title: string;
+    category: string;
+    prompt: string;
+    [key: string]: unknown;
+  }[];
 }
 
 export default function LandingPageTemplate({ style, platform, prompts }: LandingPageProps) {
@@ -33,7 +43,7 @@ export default function LandingPageTemplate({ style, platform, prompts }: Landin
             </h1>
             <p className="text-xl text-white/60 leading-relaxed mb-8">
               Discover the most curated {style.keyword} collection specifically optimized for {platform.keyword}. 
-              Whether you're creating concept art or high-end visuals, our AI-proven prompts help you achieve 
+              Whether you&apos;re creating concept art or high-end visuals, our AI-proven prompts help you achieve 
               the perfect {style.name} aesthetic every time.
             </p>
 
@@ -59,7 +69,7 @@ export default function LandingPageTemplate({ style, platform, prompts }: Landin
               <h2 className="text-2xl font-bold text-white mb-4">How to use these {style.name} prompts on {platform.name}</h2>
               <div className="space-y-4 text-white/50 leading-relaxed">
                 <p>1. Browse the collection below and find a visual reference that matches your vision.</p>
-                <p>2. Click <strong>"Copy Prompt"</strong> to get the precisely engineered text for {platform.name}.</p>
+                <p>2. Click <strong>&quot;Copy Prompt&quot;</strong> to get the precisely engineered text for {platform.name}.</p>
                 <p>3. Paste it directly into {platform.name} and watch the {style.keyword} magic happen.</p>
                 <p className="text-lime-400/80 italic text-sm mt-4 lg:max-w-md">
                   Pro-tip: You can adjust the mood or subject of these prompts while keeping the core {style.name} structure intact.
@@ -96,7 +106,7 @@ export default function LandingPageTemplate({ style, platform, prompts }: Landin
 
           {prompts.length === 0 && (
             <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/10">
-              <p className="text-white/40 mb-4 text-lg">We're currently curating more {style.name} prompts for {platform.name}.</p>
+              <p className="text-white/40 mb-4 text-lg">We&apos;re currently curating more {style.name} prompts for {platform.name}.</p>
               <Link href="/" className="text-lime-400 border-b border-lime-400/20 hover:border-lime-400 transition">
                 Explore all prompts in the meantime
               </Link>
