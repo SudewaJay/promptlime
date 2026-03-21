@@ -5,6 +5,8 @@ export interface IUser extends Document {
   email: string;
   name?: string;
   image?: string;
+  username?: string;
+  savedPrompts: mongoose.Types.ObjectId[];
   isPro?: boolean;
   copyCount?: number;
   lastReset?: Date;
@@ -29,6 +31,15 @@ const UserSchema = new Schema<IUser>(
     },
     image: String,
 
+    // 👉 User identification
+    username: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows nulls for old users until they set one
+      trim: true,
+      lowercase: true,
+    },
+
     // 👉 Track subscription and usage
     isPro: {
       type: Boolean,
@@ -43,7 +54,11 @@ const UserSchema = new Schema<IUser>(
       default: () => new Date(),
     },
 
-    // 👉 User's saved category slugs or IDs
+    // 👉 User's saved data
+    savedPrompts: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Prompt" }],
+      default: [],
+    },
     savedCategories: {
       type: [String],
       default: [],

@@ -21,6 +21,7 @@ interface PromptCardProps {
   likes?: number;
   slug?: string;
   priority?: boolean;
+  isSavedInitial?: boolean;
   onClick?: () => void;
 }
 
@@ -34,24 +35,51 @@ export default function PromptCard({
   likes = 0,
   slug,
   priority = false,
+  isSavedInitial = false,
   onClick,
 }: PromptCardProps) {
+  const { data: session } = useSession();
+  const [isSaved, setIsSaved] = useState(isSavedInitial);
+  const [isLiking, setIsLiking] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
   const [showModal, setShowModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false); // New Report Modal
   const [modalMessage, setModalMessage] = useState("");
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
-  const [showInterstitialModal, setShowInterstitialModal] = useState(false);
-  const [showShareSheet, setShowShareSheet] = useState(false);
-
-  const { data: session } = useSession();
+  const [isLiked, setIsLiked] = useState(false); // Kept from original
+  const [likeCount, setLikeCount] = useState(likes); // Kept from original
+  const [showInterstitialModal, setShowInterstitialModal] = useState(false); // Kept from original
 
   const isGemini = (tool || category || "").toLowerCase().includes("gemini");
   const platformName = isGemini ? "Gemini" : "ChatGPT";
   const platformUrl = isGemini ? "https://gemini.google.com/" : "https://chat.openai.com/";
+
+  const toggleSave = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!session) {
+      signIn("google");
+      return;
+    }
+
+    setIsLiking(true);
+    try {
+      const res = await fetch("/api/user/save-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ promptId: _id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsSaved(data.isSaved);
+      }
+    } catch (error) {
+      console.error("Failed to save prompt:", error);
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -314,15 +342,29 @@ export default function PromptCard({
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="bg-[#121212] w-full max-w-lg rounded-2xl p-6 sm:p-10 shadow-xl border border-white/10 relative text-white max-h-[90vh] overflow-y-auto flex flex-col items-center text-center"
             >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowInterstitialModal(false);
-                }}
-                className="absolute top-3 right-3 text-white/70 hover:text-white bg-black/50 backdrop-blur-md p-2 rounded-full z-10 transition-colors"
-              >
-                <X size={20} />
-              </button>
+            {/* Floating Actions */}
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button
+              onClick={toggleSave}
+              disabled={isLiking}
+              className={`p-2 rounded-full backdrop-blur-md border transition-all duration-300 ${
+                isSaved 
+                  ? "bg-lime-400 border-lime-400 text-black scale-110" 
+                  : "bg-black/20 border-white/10 text-white hover:bg-black/40 hover:border-white/20"
+              }`}
+            >
+              <Heart size={18} fill={isSaved ? "currentColor" : "none"} className={isLiking ? "animate-pulse" : ""} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowShareSheet(true);
+              }}
+              className="p-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-black/40 hover:border-white/20 transition-all"
+            >
+              <Share2 size={18} />
+            </button>
+          </div>
 
               <div className="bg-lime-500/20 text-lime-400 px-4 py-1.5 rounded-full font-medium text-sm mb-6 flex items-center gap-2">
                 <Check size={16} /> Prompt copied to clipboard
