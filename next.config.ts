@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.promptlime.space', // Cloudflare R2
+        hostname: '*.r2.dev', // Cloudflare R2 Dev URLs
       },
     ],
   },

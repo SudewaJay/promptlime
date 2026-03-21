@@ -32,7 +32,9 @@ export async function uploadToR2(key: string, body: Buffer | string, contentType
  * Format: https://<custom-domain>/cdn-cgi/image/<options>/<path-to-r2-object>
  */
 export function getImageUrl(path: string, width = 800, quality = 85) {
-  const domain = process.env.NEXT_PUBLIC_IMAGE_DOMAIN || "images.promptlime.space";
+  const rawDomain = process.env.NEXT_PUBLIC_IMAGE_DOMAIN || "images.promptlime.space";
+  // Remove https:// if user provided it
+  const domain = rawDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
   
   // If it's already a full URL (like Pinterest), return it as is (fallback during migration)
   if (path.startsWith("http")) return path;
