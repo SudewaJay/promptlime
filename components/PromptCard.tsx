@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useSession, signIn } from "next-auth/react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Share2, Clipboard, Check, X, Flag } from "lucide-react";
 import Image from "next/image";
 
@@ -21,7 +21,7 @@ interface PromptCardProps {
 
 export default function PromptCard({
   _id,
-  // category,
+  category,
   tool,
   title,
   prompt,
@@ -38,8 +38,13 @@ export default function PromptCard({
   const [modalMessage, setModalMessage] = useState("");
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const { data: session } = useSession();
+
+  const isGemini = (tool || category || "").toLowerCase().includes("gemini");
+  const platformName = isGemini ? "Gemini" : "ChatGPT";
+  const platformUrl = isGemini ? "https://gemini.google.com/" : "https://chat.openai.com/";
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -160,6 +165,39 @@ export default function PromptCard({
     }
   };
 
+  const handleOpenPlatform = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!_id) return;
+
+    if (!session) {
+      const match = document.cookie.match(/(^| )guest_copy_count=([^;]+)/);
+      const limit = match ? parseInt(match[2]) : 0;
+      if (limit >= 2) {
+        setModalMessage("⚠️ Guest limit reached (2/2). Please login for more.");
+        setShowModal(true);
+        return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setToastMessage(`Prompt copied! Paste it in ${platformName}.`);
+      setTimeout(() => setToastMessage(""), 4000);
+
+      fetch(`/api/prompts/${_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "incrementCopyCount" }),
+      }).catch(console.error);
+
+      window.open(platformUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      console.error("❌ Clipboard error", err);
+      setModalMessage("❌ Failed to copy to clipboard.");
+      setShowModal(true);
+    }
+  };
+
   return (
     <>
       {/* 🌟 Modal */}
@@ -246,6 +284,21 @@ export default function PromptCard({
         </div>
       )}
 
+      {/* 🍞 Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 50, x: "-50%" }}
+            className="fixed bottom-6 left-1/2 z-[10000] bg-[#1a1a1a] border border-white/20 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+          >
+            <Check size={16} className="text-lime-400" />
+            {toastMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 🧩 Prompt Card */}
       <motion.div
         layout
@@ -278,56 +331,66 @@ export default function PromptCard({
             {prompt}
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 mt-auto">
-            {/* ❤️ Like */}
-            <button
-              onClick={handleLike}
-              className={`flex items-center gap-1.5 text-xs md:text-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full transition-all ${isLiked
-                ? "bg-red-500/80 text-white"
-                : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
-                }`}
-            >
-              <Heart size={14} className="md:w-4 md:h-4" fill={isLiked ? "currentColor" : "none"} />
-              {likeCount}
-            </button>
+          <div className="flex flex-col gap-2 mt-auto">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* ❤️ Like */}
+              <button
+                onClick={handleLike}
+                className={`flex items-center gap-1.5 text-xs md:text-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full transition-all ${isLiked
+                  ? "bg-red-500/80 text-white"
+                  : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+                  }`}
+              >
+                <Heart size={14} className="md:w-4 md:h-4" fill={isLiked ? "currentColor" : "none"} />
+                {likeCount}
+              </button>
 
-            {/* 🔗 Share */}
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
-            >
-              <Share2 size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Share</span>
-            </button>
+              {/* 🔗 Share */}
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
+              >
+                <Share2 size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Share</span>
+              </button>
 
-            {/* 🚩 Report */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowReportModal(true);
-              }}
-              className="flex items-center gap-1 text-xs md:text-sm px-2 py-1 md:py-1.5 rounded-full text-white/40 hover:text-red-400 hover:bg-red-500/10 transition"
-              title="Report Prompt"
-            >
-              <Flag size={12} className="md:w-3.5 md:h-3.5" />
-            </button>
+              {/* 🚩 Report */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReportModal(true);
+                }}
+                className="flex items-center gap-1 text-xs md:text-sm px-2 py-1 md:py-1.5 rounded-full text-white/40 hover:text-red-400 hover:bg-red-500/10 transition"
+                title="Report Prompt"
+              >
+                <Flag size={12} className="md:w-3.5 md:h-3.5" />
+              </button>
 
-            {/* 📋 Copy (Right aligned) */}
+              {/* 📋 Copy (Right aligned) */}
+              <button
+                onClick={handleCopy}
+                className={`ml-auto px-3 md:px-4 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-semibold border backdrop-blur-md transition-all ${copied
+                  ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
+                  : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
+                  }`}
+              >
+                {copied ? (
+                  <span className="flex items-center gap-1">
+                    <Check size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Copied</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <Clipboard size={14} className="md:w-4 md:h-4" /> Copy
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* 🚀 Platform CTA */}
             <button
-              onClick={handleCopy}
-              className={`ml-auto px-3 md:px-4 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-semibold border backdrop-blur-md transition-all ${copied
-                ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
-                : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
-                }`}
+              onClick={handleOpenPlatform}
+              className="ml-auto px-4 py-1.5 rounded-full text-xs md:text-sm font-medium border border-white/10 text-white hover:bg-white/10 hover:border-white/30 transition-all flex items-center gap-1"
             >
-              {copied ? (
-                <span className="flex items-center gap-1">
-                  <Check size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Copied</span>
-                </span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  <Clipboard size={14} className="md:w-4 md:h-4" /> Copy
-                </span>
-              )}
+              Open {platformName} &rarr;
             </button>
           </div>
         </div>

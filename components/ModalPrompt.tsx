@@ -33,6 +33,11 @@ export default function ModalPrompt({
   const [copied, setCopied] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(prompt?.likes || 0);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const isGemini = (prompt?.tool || prompt?.category || "").toLowerCase().includes("gemini");
+  const platformName = isGemini ? "Gemini" : "ChatGPT";
+  const platformUrl = isGemini ? "https://gemini.google.com/" : "https://chat.openai.com/";
 
   useEffect(() => {
     if (prompt?._id) {
@@ -117,8 +122,51 @@ export default function ModalPrompt({
     }
   };
 
+  const handleOpenPlatform = async () => {
+    if (!prompt._id) return;
+
+    if (!session) {
+      const match = document.cookie.match(/(^| )guest_copy_count=([^;]+)/);
+      const limit = match ? parseInt(match[2]) : 0;
+      if (limit >= 2) {
+        alert("⚠️ Guest limit reached (2/2). Please login for more.");
+        return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(prompt.prompt);
+      setToastMessage(`Prompt copied! Paste it in ${platformName}.`);
+      setTimeout(() => setToastMessage(""), 4000);
+
+      fetch(`/api/prompts/${prompt._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "incrementCopyCount" }),
+      }).catch(console.error);
+
+      window.open(platformUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      console.error("❌ Clipboard error", err);
+      alert("❌ Failed to copy to clipboard.");
+    }
+  };
+
   return (
     <AnimatePresence>
+      {/* 🍞 Toast Notification for Modal */}
+      {toastMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: 50, x: "-50%" }}
+          animate={{ opacity: 1, y: 0, x: "-50%" }}
+          exit={{ opacity: 0, y: 50, x: "-50%" }}
+          className="fixed bottom-6 left-1/2 z-[10000] bg-[#1a1a1a] border border-white/20 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+        >
+          <Check size={16} className="text-lime-400" />
+          {toastMessage}
+        </motion.div>
+      )}
+
       <motion.div
         key="modal"
         initial={{ opacity: 0 }}
@@ -167,61 +215,73 @@ export default function ModalPrompt({
               <PromptDisplay text={prompt.prompt} />
 
               {/* 🎛️ Actions and Stats */}
-              <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center mt-4 gap-4 sm:gap-6 w-full">
-                {/* Buttons */}
-                <div className="flex gap-3">
-                  {/* 📋 Copy */}
-                  <button
-                    onClick={handleCopy}
-                    className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
-                      ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
-                      : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
-                      }`}
-                  >
-                    {copied ? (
-                      <span className="flex items-center gap-1">
-                        <Check size={16} /> Copied
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        <Clipboard size={16} /> Copy
+              <div className="flex flex-col mt-4 w-full gap-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 w-full">
+                  {/* Buttons */}
+                  <div className="flex gap-3">
+                    {/* 📋 Copy */}
+                    <button
+                      onClick={handleCopy}
+                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border backdrop-blur-md transition-all ${copied
+                        ? "bg-lime-500/80 text-white border-lime-400 shadow shadow-lime-300/30"
+                        : "bg-white/10 text-lime-300 border-white/20 hover:bg-white/20 hover:text-white"
+                        }`}
+                    >
+                      {copied ? (
+                        <span className="flex items-center gap-1">
+                          <Check size={16} /> Copied
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1">
+                          <Clipboard size={16} /> Copy
+                        </span>
+                      )}
+                    </button>
+
+                    {/* ❤️ Like */}
+                    <button
+                      onClick={handleLike}
+                      className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
+                        ? "bg-red-500/80 text-white"
+                        : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
+                        }`}
+                    >
+                      <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
+                      {likeCount}
+                    </button>
+
+                    {/* 🔗 Share */}
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
+                    >
+                      <Share2 size={16} /> Share
+                    </button>
+                  </div>
+
+                  {/* 📊 Stats */}
+                  <div className="text-xs text-white/50 flex gap-4">
+                    <span>📋 {prompt.copyCount ?? 0} copies</span>
+                    <span>👁️ {prompt.views ?? 0} views</span>
+                    {prompt.createdAt && (
+                      <span>
+                        🕒{" "}
+                        {formatDistanceToNow(new Date(prompt.createdAt), {
+                          addSuffix: true,
+                        })}
                       </span>
                     )}
-                  </button>
-
-                  {/* ❤️ Like */}
-                  <button
-                    onClick={handleLike}
-                    className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-all ${isLiked
-                      ? "bg-red-500/80 text-white"
-                      : "bg-white/10 text-red-300 border border-white/20 hover:bg-white/20 hover:text-white"
-                      }`}
-                  >
-                    <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
-                    {likeCount}
-                  </button>
-
-                  {/* 🔗 Share */}
-                  <button
-                    onClick={handleShare}
-                    className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-white/10 text-white hover:text-lime-400 hover:bg-white/20 border border-white/20 transition"
-                  >
-                    <Share2 size={16} /> Share
-                  </button>
+                  </div>
                 </div>
 
-                {/* 📊 Stats */}
-                <div className="text-xs text-white/50 flex gap-4 sm:ml-auto">
-                  <span>📋 {prompt.copyCount ?? 0} copies</span>
-                  <span>👁️ {prompt.views ?? 0} views</span>
-                  {prompt.createdAt && (
-                    <span>
-                      🕒{" "}
-                      {formatDistanceToNow(new Date(prompt.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  )}
+                {/* 🚀 Platform CTA */}
+                <div>
+                  <button
+                    onClick={handleOpenPlatform}
+                    className="px-4 py-1.5 rounded-full text-sm font-medium border border-white/10 text-white hover:bg-white/10 hover:border-white/30 transition-all flex items-center gap-1 w-fit"
+                  >
+                    Open {platformName} &rarr;
+                  </button>
                 </div>
               </div>
             </div>
