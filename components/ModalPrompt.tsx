@@ -136,7 +136,7 @@ export default function ModalPrompt({
 
     try {
       await navigator.clipboard.writeText(prompt.prompt);
-      setToastMessage(`Prompt copied! Paste it in ${platformName}.`);
+      setToastMessage(`Prompt copied — just paste it (Ctrl+V / ⌘V) and hit send`);
       setTimeout(() => setToastMessage(""), 4000);
 
       fetch(`/api/prompts/${prompt._id}`, {
@@ -280,7 +280,7 @@ export default function ModalPrompt({
                     onClick={handleOpenPlatform}
                     className="px-4 py-1.5 rounded-full text-sm font-medium border border-white/10 text-white hover:bg-white/10 hover:border-white/30 transition-all flex items-center gap-1 w-fit"
                   >
-                    Open {platformName} &rarr;
+                    Open in {platformName} &rarr;
                   </button>
                 </div>
               </div>

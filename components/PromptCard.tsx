@@ -181,7 +181,7 @@ export default function PromptCard({
 
     try {
       await navigator.clipboard.writeText(prompt);
-      setToastMessage(`Prompt copied! Paste it in ${platformName}.`);
+      setToastMessage(`Prompt copied — just paste it (Ctrl+V / ⌘V) and hit send`);
       setTimeout(() => setToastMessage(""), 4000);
 
       fetch(`/api/prompts/${_id}`, {
@@ -390,7 +390,7 @@ export default function PromptCard({
               onClick={handleOpenPlatform}
               className="ml-auto px-4 py-1.5 rounded-full text-xs md:text-sm font-medium border border-white/10 text-white hover:bg-white/10 hover:border-white/30 transition-all flex items-center gap-1"
             >
-              Open {platformName} &rarr;
+              Open in {platformName} &rarr;
             </button>
           </div>
         </div>
