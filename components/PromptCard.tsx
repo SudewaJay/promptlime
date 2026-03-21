@@ -39,6 +39,7 @@ export default function PromptCard({
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [showInterstitialModal, setShowInterstitialModal] = useState(false);
 
   const { data: session } = useSession();
 
@@ -181,8 +182,6 @@ export default function PromptCard({
 
     try {
       await navigator.clipboard.writeText(prompt);
-      setToastMessage(`Prompt copied — just paste it (Ctrl+V / ⌘V) and hit send`);
-      setTimeout(() => setToastMessage(""), 4000);
 
       fetch(`/api/prompts/${_id}`, {
         method: "PATCH",
@@ -190,7 +189,7 @@ export default function PromptCard({
         body: JSON.stringify({ action: "incrementCopyCount" }),
       }).catch(console.error);
 
-      window.open(platformUrl, "_blank", "noopener,noreferrer");
+      setShowInterstitialModal(true);
     } catch (err) {
       console.error("❌ Clipboard error", err);
       setModalMessage("❌ Failed to copy to clipboard.");
@@ -296,6 +295,77 @@ export default function PromptCard({
             <Check size={16} className="text-lime-400" />
             {toastMessage}
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 🚀 Interstitial Modal */}
+      <AnimatePresence>
+        {showInterstitialModal && (
+          <div
+            className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-[#121212] w-full max-w-lg rounded-2xl p-6 sm:p-10 shadow-xl border border-white/10 relative text-white max-h-[90vh] overflow-y-auto flex flex-col items-center text-center"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowInterstitialModal(false);
+                }}
+                className="absolute top-3 right-3 text-white/70 hover:text-white bg-black/50 backdrop-blur-md p-2 rounded-full z-10 transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="bg-lime-500/20 text-lime-400 px-4 py-1.5 rounded-full font-medium text-sm mb-6 flex items-center gap-2">
+                <Check size={16} /> Prompt copied to clipboard
+              </div>
+              
+              <div className="mb-2">
+                <span className="text-xs font-semibold bg-white/10 px-2 flex items-center gap-1 py-1 rounded text-white/80 uppercase tracking-widest">
+                  {platformName}
+                </span>
+              </div>
+              
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ready to generate</h2>
+              
+              <p className="text-gray-300 md:text-lg mb-8 max-w-lg mx-auto">
+                Open {platformName}, click the input box, press <kbd className="bg-white/10 border border-white/20 px-2 py-0.5 rounded-md text-sm mx-1 font-sans">⌘V</kbd> (Mac) or <kbd className="bg-white/10 border border-white/20 px-2 py-0.5 rounded-md text-sm mx-1 font-sans">Ctrl+V</kbd> (Windows) to paste your prompt &mdash; then add your photo and hit send.
+              </p>
+
+              <div className="w-full max-w-lg mb-8 bg-black/40 border border-white/10 p-5 rounded-xl text-left text-sm text-gray-300 italic relative">
+                <span className="text-lime-400/50 absolute top-2 right-4 text-3xl font-serif">&quot;</span>
+                {prompt.slice(0, 100)}{prompt.length > 100 ? '...' : ''}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(platformUrl, '_blank');
+                    setShowInterstitialModal(false);
+                  }}
+                  className="flex-1 bg-white text-black font-semibold py-3 px-6 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  Open {platformName} &rarr;
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowInterstitialModal(false);
+                  }}
+                  className="flex-1 bg-white/10 text-white font-medium py-3 px-6 rounded-full hover:bg-white/20 border border-white/10 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

@@ -8,6 +8,9 @@ export interface IPrompt extends Document {
   tags: string[];             // ✅ Added: Tags array
   prompt: string;
   image?: string;
+  styleTag?: string;          // ✅ Added: Style category
+  useCaseTag?: string;        // ✅ Added: Use case category
+  moodTag?: string;           // ✅ Added: Mood category
   copyCount: number;
   likes: number;
   views: number;
@@ -24,6 +27,9 @@ const PromptSchema = new Schema<IPrompt>(
     tags: { type: [String], default: [], index: true },         // ✅ Indexed for search
     prompt: { type: String, required: true },
     image: { type: String },
+    styleTag: { type: String, trim: true },
+    useCaseTag: { type: String, trim: true },
+    moodTag: { type: String, trim: true },
     copyCount: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },

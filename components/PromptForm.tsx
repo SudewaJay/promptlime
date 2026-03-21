@@ -16,7 +16,14 @@ export default function PromptForm() {
     tags: "",
     prompt: "",
     image: "",
+    styleTag: "",
+    useCaseTag: "",
+    moodTag: "",
   });
+
+  const STYLES = ["cinematic", "anime", "ghibli", "pixar", "watercolor", "oil-painting", "cyberpunk", "vintage", "fantasy", "minimal", "3d"];
+  const USE_CASES = ["self-portrait", "product", "landscape", "group", "pet", "food"];
+  const MOODS = ["dark", "vibrant", "warm", "dreamy", "retro", "minimal"];
 
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,7 +78,7 @@ export default function PromptForm() {
       });
 
       if (res.ok) {
-        setForm({ title: "", category: "", tool: form.tool, tags: "", prompt: "", image: "" });
+        setForm({ title: "", category: "", tool: form.tool, tags: "", prompt: "", image: "", styleTag: "", useCaseTag: "", moodTag: "" });
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -140,6 +147,39 @@ export default function PromptForm() {
         placeholder="Tags (comma separated, e.g. funny, work, anime)"
         className="w-full mb-3 px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none"
       />
+
+      {/* NEW TAGS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <select
+          name="styleTag"
+          value={form.styleTag}
+          onChange={handleChange}
+          className="w-full px-4 py-2 rounded-md bg-white/10 text-white border border-white/20"
+        >
+          <option value="">Style (Optional)</option>
+          {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+
+        <select
+          name="useCaseTag"
+          value={form.useCaseTag}
+          onChange={handleChange}
+          className="w-full px-4 py-2 rounded-md bg-white/10 text-white border border-white/20"
+        >
+          <option value="">Use Case (Optional)</option>
+          {USE_CASES.map(u => <option key={u} value={u}>{u}</option>)}
+        </select>
+
+        <select
+          name="moodTag"
+          value={form.moodTag}
+          onChange={handleChange}
+          className="w-full px-4 py-2 rounded-md bg-white/10 text-white border border-white/20"
+        >
+          <option value="">Mood (Optional)</option>
+          {MOODS.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+      </div>
 
       <textarea
         name="prompt"

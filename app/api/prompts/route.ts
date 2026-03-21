@@ -12,6 +12,9 @@ export async function GET(req: Request) {
     const tool = searchParams.get("tool");
     const category = searchParams.get("category");
     const tag = searchParams.get("tag");
+    const styleTag = searchParams.get("style");
+    const useCaseTag = searchParams.get("useCase");
+    const moodTag = searchParams.get("mood");
     const sort = searchParams.get("sort"); // 'trending' or 'date' (default)
 
     // Fetch default tag setting
@@ -23,6 +26,9 @@ export async function GET(req: Request) {
     if (tool && tool !== "All") query.tool = tool;
     if (category) query.category = category;
     if (tag) query.tags = tag;
+    if (styleTag) query.styleTag = { $in: styleTag.split(',') };
+    if (useCaseTag) query.useCaseTag = { $in: useCaseTag.split(',') };
+    if (moodTag) query.moodTag = { $in: moodTag.split(',') };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let sortOption: any = { createdAt: -1 }; // Default: Newest first

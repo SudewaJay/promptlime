@@ -6,11 +6,14 @@ import PromptCard from "@/components/PromptCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromptCardSkeleton from "@/components/PromptCardSkeleton";
-import dynamic from "next/dynamic";
-
 const ModalPrompt = dynamic(() => import("@/components/ModalPrompt"), { ssr: false });
 import { useSearch } from "@/context/SearchContext";
 import { SparklesCore } from "@/components/ui/sparkles";
+import { useRouter } from "next/navigation";
+
+const STYLES = ["cinematic", "anime", "ghibli", "pixar", "watercolor", "oil-painting", "cyberpunk", "vintage", "fantasy", "minimal", "3d"];
+const USE_CASES = ["self-portrait", "product", "landscape", "group", "pet", "food", "portrait"];
+const MOODS = ["dark", "vibrant", "warm", "dreamy", "retro", "minimal"];
 
 type Prompt = {
   _id?: string;
@@ -35,11 +38,36 @@ type Tool = {
 export default function Home() {
   const { searchTerm } = useSearch();
 
+  const router = useRouter();
+  
   // States suitable for server-side filtering
   const [activeTab, setActiveTab] = useState<"trending" | "all">("trending");
   const [activeTool, setActiveTool] = useState<string>("All");
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  
+  const [activeStyles, setActiveStyles] = useState<string[]>([]);
+  const [activeUseCases, setActiveUseCases] = useState<string[]>([]);
+  const [activeMoods, setActiveMoods] = useState<string[]>([]);
+  
   const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    // Read URL params initially
+    const params = new URLSearchParams(window.location.search);
+    setActiveStyles(params.get("style")?.split(",").filter(Boolean) || []);
+    setActiveUseCases(params.get("useCase")?.split(",").filter(Boolean) || []);
+    setActiveMoods(params.get("mood")?.split(",").filter(Boolean) || []);
+  }, []);
+
+  const updateUrlParam = (key: string, values: string[]) => {
+    const params = new URLSearchParams(window.location.search);
+    if (values.length > 0) {
+      params.set(key, values.join(","));
+    } else {
+      params.delete(key);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   // Scroll Listener for Sticky State
   useEffect(() => {
@@ -85,6 +113,9 @@ export default function Home() {
         const params = new URLSearchParams();
         if (activeTool !== "All") params.append("tool", activeTool);
         if (activeTag) params.append("tag", activeTag);
+        if (activeStyles.length > 0) params.append("style", activeStyles.join(","));
+        if (activeUseCases.length > 0) params.append("useCase", activeUseCases.join(","));
+        if (activeMoods.length > 0) params.append("mood", activeMoods.join(","));
 
         // Sorting logic handled by API
         // "trending" -> sort by popularity
@@ -116,7 +147,7 @@ export default function Home() {
     // Debounce or just fetch
     const timeout = setTimeout(fetchPrompts, 100);
     return () => clearTimeout(timeout);
-  }, [activeTab, activeTool, activeTag]);
+  }, [activeTab, activeTool, activeTag, activeStyles, activeUseCases, activeMoods]);
 
   // Client-side search filtering
   const filteredPrompts = prompts.filter((prompt) => {
@@ -218,24 +249,82 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 🏷️ Tags Cloud (Optional) */}
-              {uniqueTags.length > 0 && (
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-white/5">
-                  <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider shrink-0">Tags</span>
-                  {uniqueTags.map(tag => (
-                    <button
-                      key={tag}
-                      onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition whitespace-nowrap border ${activeTag === tag
-                        ? "bg-lime-400/10 text-lime-400 border-lime-400/30"
-                        : "text-white/40 border-transparent hover:text-white hover:bg-white/5"
-                        }`}
-                    >
-                      #{tag}
-                    </button>
-                  ))}
+              {/* 🏷️ Filter Categories */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-white/5 pb-1 w-full">
+                
+                {/* STYLES */}
+                <div className="flex items-center gap-2 shrink-0 border-r border-white/10 pr-4 mr-2">
+                  <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider shrink-0 mr-1">Style</span>
+                  {STYLES.map(tag => {
+                    const isActive = activeStyles.includes(tag);
+                    return (
+                      <button
+                        key={`style-${tag}`}
+                        onClick={() => {
+                          const next = isActive ? activeStyles.filter(s => s !== tag) : [...activeStyles, tag];
+                          setActiveStyles(next);
+                          updateUrlParam("style", next);
+                        }}
+                        className={`px-3 py-1 rounded-full text-[11px] font-medium transition whitespace-nowrap border ${isActive
+                          ? "bg-lime-400 text-black border-lime-400 shadow-[0_0_10px_rgba(163,230,53,0.3)]"
+                          : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                          }`}
+                      >
+                        {tag}
+                      </button>
+                    )
+                  })}
                 </div>
-              )}
+
+                {/* USE CASE */}
+                <div className="flex items-center gap-2 shrink-0 border-r border-white/10 pr-4 mr-2">
+                  <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider shrink-0 mr-1">Task</span>
+                  {USE_CASES.map(tag => {
+                    const isActive = activeUseCases.includes(tag);
+                    return (
+                      <button
+                        key={`useCase-${tag}`}
+                        onClick={() => {
+                          const next = isActive ? activeUseCases.filter(s => s !== tag) : [...activeUseCases, tag];
+                          setActiveUseCases(next);
+                          updateUrlParam("useCase", next);
+                        }}
+                        className={`px-3 py-1 rounded-full text-[11px] font-medium transition whitespace-nowrap border ${isActive
+                          ? "bg-lime-400 text-black border-lime-400 shadow-[0_0_10px_rgba(163,230,53,0.3)]"
+                          : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                          }`}
+                      >
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* MOOD */}
+                <div className="flex items-center gap-2 shrink-0 pr-4">
+                  <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider shrink-0 mr-1">Mood</span>
+                  {MOODS.map(tag => {
+                    const isActive = activeMoods.includes(tag);
+                    return (
+                      <button
+                        key={`mood-${tag}`}
+                        onClick={() => {
+                          const next = isActive ? activeMoods.filter(s => s !== tag) : [...activeMoods, tag];
+                          setActiveMoods(next);
+                          updateUrlParam("mood", next);
+                        }}
+                        className={`px-3 py-1 rounded-full text-[11px] font-medium transition whitespace-nowrap border ${isActive
+                          ? "bg-lime-400 text-black border-lime-400 shadow-[0_0_10px_rgba(163,230,53,0.3)]"
+                          : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                          }`}
+                      >
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
+
+              </div>
             </div>
           </div>
         </div>

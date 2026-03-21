@@ -24,7 +24,13 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
         image: "",
         tool: "",
         tags: "",
+        styleTag: "",
+        useCaseTag: "",
+        moodTag: "",
     });
+    const STYLES = ["cinematic", "anime", "ghibli", "pixar", "watercolor", "oil-painting", "cyberpunk", "vintage", "fantasy", "minimal", "3d"];
+    const USE_CASES = ["self-portrait", "product", "landscape", "group", "pet", "food"];
+    const MOODS = ["dark", "vibrant", "warm", "dreamy", "retro", "minimal"];
     const [tools, setTools] = useState<Tool[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -50,6 +56,9 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
                         image: data.data.image || "",
                         tool: data.data.tool || "",
                         tags: Array.isArray(data.data.tags) ? data.data.tags.join(", ") : "",
+                        styleTag: data.data.styleTag || "",
+                        useCaseTag: data.data.useCaseTag || "",
+                        moodTag: data.data.moodTag || "",
                     });
                 }
             } catch (error) {
@@ -168,6 +177,47 @@ export default function EditPromptPage({ params }: { params: Promise<{ id: strin
                         placeholder="e.g. funny, work, anime"
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
                     />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-white/60 mb-2">Style</label>
+                        <select
+                            name="styleTag"
+                            value={form.styleTag}
+                            onChange={handleChange}
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
+                        >
+                            <option value="">Select Style</option>
+                            {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-white/60 mb-2">Use Case</label>
+                        <select
+                            name="useCaseTag"
+                            value={form.useCaseTag}
+                            onChange={handleChange}
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
+                        >
+                            <option value="">Select Use Case</option>
+                            {USE_CASES.map(u => <option key={u} value={u}>{u}</option>)}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-white/60 mb-2">Mood</label>
+                        <select
+                            name="moodTag"
+                            value={form.moodTag}
+                            onChange={handleChange}
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition"
+                        >
+                            <option value="">Select Mood</option>
+                            {MOODS.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                    </div>
                 </div>
 
                 <div>
