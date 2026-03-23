@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       const body = await req.json();
       if (body.contentType) contentType = body.contentType;
       if (body.folder) folder = body.folder;
-    } catch (e) {
+    } catch {
       // Ignore JSON parse error if body is empty
     }
 
