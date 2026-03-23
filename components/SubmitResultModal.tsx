@@ -31,10 +31,10 @@ export default function SubmitResultModal({ promptId, promptTitle, onClose, onSu
           folder: "results"
         }),
       });
-      const { uploadUrl, publicUrl } = await res.json();
+      const { presignedUrl, publicUrl } = await res.json();
 
       // 2. Upload to R2
-      await fetch(uploadUrl, {
+      await fetch(presignedUrl, {
         method: "PUT",
         body: file,
         headers: { "Content-Type": file.type },

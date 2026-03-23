@@ -14,9 +14,24 @@ const r2 = new S3Client({
   },
 });
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    const fileKey = `prompts/${uuidv4()}.jpg`;
+    let contentType = "image/jpeg";
+    let folder = "prompts";
+    let ext = "jpg";
+
+    try {
+      const body = await req.json();
+      if (body.contentType) contentType = body.contentType;
+      if (body.folder) folder = body.folder;
+    } catch (e) {
+      // Ignore JSON parse error if body is empty
+    }
+
+    if (contentType === "image/png") ext = "png";
+    else if (contentType === "image/webp") ext = "webp";
+
+    const fileKey = `${folder}/${uuidv4()}.${ext}`;
     
     // Default bucket name from env or fallback
     const bucketName = process.env.R2_BUCKET_NAME || "promptlime-images";
@@ -26,7 +41,7 @@ export async function POST() {
       new PutObjectCommand({
         Bucket: bucketName,
         Key: fileKey,
-        ContentType: "image/jpeg", // We'll enforce this client-side or handle dynamic types
+        ContentType: contentType, // Accept dynamic content types
       }),
       { expiresIn: 60 }
     );

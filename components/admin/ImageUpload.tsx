@@ -38,7 +38,11 @@ export default function ImageUpload({ initialValue, onUploadSuccess, onRemove }:
 
     try {
       // 1. Get presigned URL
-      const res = await fetch("/api/upload/presign", { method: "POST" });
+      const res = await fetch("/api/upload/presign", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentType: file.type })
+      });
       if (!res.ok) throw new Error("Failed to get upload URL");
       const { presignedUrl, publicUrl } = await res.json();
 
