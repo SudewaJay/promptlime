@@ -46,6 +46,9 @@ export default function Footer() {
 
           {/* ✅ Navigation Links */}
           <div className="flex flex-col gap-2 md:flex-row md:space-x-5">
+            <Link href="/builder" className="text-white/70 hover:text-lime-400 transition font-medium">
+              Prompt Builder
+            </Link>
             <Link href="/about" className="text-white/70 hover:text-white transition">
               About Us
             </Link>

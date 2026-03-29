@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bell, Search, X } from "lucide-react";
+import { Bell, Search, X, Wand2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/context/SearchContext";
@@ -120,16 +120,29 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 w-full z-[100] backdrop-blur-md bg-[#0f0f0f]/80 border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between relative">
-          {/* 🔰 Logo */}
-          <Link href="/" className="flex items-center gap-2 relative z-[60]">
-            <Image
-              src="/logo.svg"
-              alt="PromptHubb logo"
-              width={140}
-              height={32}
-              priority
-            />
-          </Link>
+          {/* 🔰 Logo & Main Nav */}
+          <div className="flex items-center gap-10 relative z-[60]">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/logo.svg"
+                alt="PromptHubb logo"
+                width={140}
+                height={32}
+                priority
+              />
+            </Link>
+
+            {/* 🖥️ Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-8 text-sm font-medium">
+              <Link href="/" className="text-white/70 hover:text-white transition">Home</Link>
+              <Link href="/builder" className="text-lime-400/80 hover:text-lime-400 transition flex items-center gap-2">
+                <Wand2 size={16} />
+                Builder
+              </Link>
+              <Link href="/about" className="text-white/70 hover:text-white transition">About</Link>
+              <Link href="/how-it-works" className="text-white/70 hover:text-white transition">How It Works</Link>
+            </nav>
+          </div>
 
           {/* 🔍 Search Bar (Desktop Center) */}
           <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] z-50">
@@ -336,6 +349,12 @@ export default function Header() {
           <Link href="/" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
             <span className="text-[10px] font-medium">Home</span>
+          </Link>
+
+          {/* ✨ Builder */}
+          <Link href="/builder" className="flex flex-col items-center gap-1 text-white/60 hover:text-lime-400 transition-all active:scale-95">
+            <Wand2 size={24} />
+            <span className="text-[10px] font-medium">Builder</span>
           </Link>
 
           {/* 🔔 Notifications */}

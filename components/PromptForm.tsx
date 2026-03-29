@@ -32,6 +32,16 @@ export default function PromptForm() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const prefilledPrompt = params.get("prompt");
+      if (prefilledPrompt) {
+        setForm((prev) => ({ ...prev, prompt: prefilledPrompt }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchTools = async () => {
       try {
         const res = await fetch("/api/tools");

@@ -18,6 +18,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.r2.dev', // Cloudflare R2 Dev URLs
       },
+      {
+        protocol: 'https',
+        hostname: 'images.promptlime.space', // Custom CDN domain
+      },
     ],
   },
 
