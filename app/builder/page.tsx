@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Copy, ExternalLink, RotateCcw, Send, Wand2, PlusCircle, Check, Camera, Lightbulb, Image as ImageIcon, Map, Sparkles, Wand, X } from "lucide-react";
+import { Copy, RotateCcw, Wand2, Check, Camera, Lightbulb, Image as ImageIcon, Map, Sparkles, Wand, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import copy from "copy-to-clipboard";
-import { useSession } from "next-auth/react";
+
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,7 +20,7 @@ const OPTIONS = {
 };
 
 export default function BuilderPage() {
-  const { data: session } = useSession();
+
   const [platform, setPlatform] = useState("ChatGPT");
   const [subject, setSubject] = useState("None");
   const [style, setStyle] = useState("None");
@@ -32,7 +32,7 @@ export default function BuilderPage() {
 
   const [promptText, setPromptText] = useState("");
   const [copied, setCopied] = useState(false);
-  const [saving, setSaving] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
 
   // Auto-generate prompt logic
